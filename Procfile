@@ -1,1 +1,1 @@
-web: python3 main.py -p 2222
+worker: python3 main.py -p 2222
