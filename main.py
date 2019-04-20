@@ -215,7 +215,7 @@ def handle_text(message):
     if (state[chat] == 1):
         # bot.send_chat_action(message.chat.id, "record_audio")
         song_name = message.text
-        song_name.replace(' ', '-')
+        song_name = song_name.replace(' ','-')
         ls[chat] = getList(song_name, message)
         if len(ls[chat])>0:
             answer = ""
