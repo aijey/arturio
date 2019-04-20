@@ -2,6 +2,3 @@ django
 gunicorn
 django-heroku
 telebot
-urllib
-requests
-sys
