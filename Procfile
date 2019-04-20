@@ -1,1 +1,1 @@
-web: python arturio_bot.py
+web: python main.py
