@@ -148,7 +148,7 @@ def init(message):
            ' chat:' + str(transChatId[message.chat.id]) + ' message:' + (message.text))
 
 def log(message, answer):
-    print 'Reply to ' + message.from_user.first_name + ': ' + answer
+    print('Reply to ' + message.from_user.first_name + ': ' + answer)
 
 
 @bot.message_handler(commands=['help'])
