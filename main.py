@@ -14,6 +14,8 @@ state = []
 pos = []
 ls = [[]]
 
+
+
 def getLink(s,chat):
     global pos
     search = 'download'
@@ -134,7 +136,7 @@ def getFile(a,chat):
     urllib.request.urlretrieve(url, file_name)
     print('music downloaded: ' + a[1] + '-' + a[2])
 def init(message):
-    global state,lastNotUsed,transChatId,ls,pos
+    global state,lastNotUsed,transChatId,ls,pos,message_ids
     if (transChatId.get(message.chat.id,-1) == -1):
         transChatId[message.chat.id]=lastNotUsed
         lastNotUsed = lastNotUsed + 1
@@ -144,6 +146,7 @@ def init(message):
         ls.append([])
     while (len(pos) <= transChatId[message.chat.id]):
         pos.append(0)
+
 
     ### LOG ###
     print ('User:' + message.from_user.first_name + ' chat_id:' + str(message.chat.id) +
@@ -162,6 +165,7 @@ def handle_help(message):
              " вибераєш ту, яка тобі підходить. Потім чекаєш в середньому секунд 20 і отримуєш свій трек 😎😎😎"
     bot.send_message(message.chat.id, answer)
 
+
     ### LOG ###
     log(message,answer)
 
@@ -174,6 +178,7 @@ def handle_start(message):
     bot.send_message(message.chat.id, answer)
     log(message, answer)
 
+
 @bot.message_handler(commands=['music'])
 def handle_music(message):
     global state,transChatId
@@ -182,6 +187,8 @@ def handle_music(message):
     log(message, answer)
     bot.send_message(message.chat.id,answer)
     state[transChatId[message.chat.id]] = 1
+
+
 
 @bot.message_handler(commands=['0','1','2','3','4','5','6','7','8','9','10'])
 def handle_selection(message):
@@ -205,6 +212,7 @@ def handle_selection(message):
         performer =  ls[chat][indx][1],
         title = ls[chat][indx][2])
         state[chat] = 0
+
 
 
         ### LOG ###
@@ -232,15 +240,23 @@ def handle_text(message):
             # bot.send_audio(message.chat.id,file)
             bot.send_message(message.chat.id, answer,None,None,None, 'HTML' )
             log(message,answer)
+
             state[chat] = 2
         else:
             print('da')
             answer = 'Сорямба, я нич не найшов'
             bot.send_message(message.chat.id,answer)
             log(message,answer)
+
             state[chat] = 0
 
 
 
 
-bot.polling(none_stop=True, interval=0)
+bot.polling(none_stop=True, interval=1)
+
+# states
+# 0 -> default
+# 1 -> waiting for music_name
+# 2 -> select music from selection
+# 3 -> waiting for number of messages to delete
