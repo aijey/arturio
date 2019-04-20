@@ -2,7 +2,8 @@
 import telebot
 import urllib
 import requests
-
+import urllib.request
+import ssl
 TOKEN = "743596317:AAFGbmXQOXakO_MpFWFkXzltzLB6__eRYOs"
 
 bot = telebot.TeleBot(TOKEN)
@@ -31,8 +32,9 @@ def getLink(s,chat):
                 p2 = p2 + 1
             p1 = p1 + 1
             p2 = p2 - 1
-            #print('Link found: '+ s[p1:p2])
+            print('Link found: '+ s[p1:p2])
             return s[p1:p2]
+    print('No link')
     return '0'
 def getDuration(s,chat):
     global pos
@@ -99,9 +101,8 @@ def getList(song,message):
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
     url = "https://music.xn--41a.ws/search/"+song+"/"
     htmlContent = requests.get(url, headers=headers)
-    print(htmlContent.content);
 
-    s = htmlContent.content
+    s = htmlContent.content.decode("utf-8", "strict")
     result = []
     chat = transChatId[message.chat.id]
     pos[chat] = 0
@@ -120,13 +121,13 @@ def getList(song,message):
 
 
 def getFile(a,chat):
-    destination = 'music/file'+str(chat)+'.mp3'
-    url = 'https://music.xn--41a.ws' + a[0]
+    file_name = 'music/file'+str(chat)+'.mp3'
+    url = 'http://music.xn--41a.ws' + a[0]
     print('downloading: ' + a[1] + '-' + a[2])
-    urllib.urlretrieve(url, destination)
+    gcontext = ssl.SSLContext()  # Only for gangstars
+    ssl._create_default_https_context = ssl._create_unverified_context
+    urllib.request.urlretrieve(url, file_name)
     print('music downloaded: ' + a[1] + '-' + a[2])
-
-
 def init(message):
     global state,lastNotUsed,transChatId,ls,pos
     if (transChatId.get(message.chat.id,-1) == -1):
@@ -193,9 +194,11 @@ def handle_selection(message):
         answer = 'Скачавім, гружу тепер тобі'
         bot.send_message(message.chat.id,answer)
         log(message,answer)
-        file = open('music/file'+str(chat)+'.mp3')
+        # file = open('music/file'+str(chat)+'.mp3')
         bot.send_chat_action(message.chat.id,'upload_audio')
-        bot.send_audio(message.chat.id, file, None, None, ls[chat][indx][1],ls[chat][indx][2])
+        bot.send_audio(message.chat.id, audio = open('music/file'+str(chat)+'.mp3', 'rb'),
+        performer =  ls[chat][indx][1],
+        title = ls[chat][indx][2])
         state[chat] = 0
 
 
@@ -219,9 +222,9 @@ def handle_text(message):
             for i in ls[chat]:
                 answer = answer + '/'+ str(id) + ' ' + (i[1]) + "- <b>" + (i[2]) + '</b> <em>' + i[3] + '</em>\n'
                 id = id + 1
-            bot.send_chat_action(message.chat.id, "upload_audio")
-            file = open('music/'+song_name+'.mp3')
-            bot.send_audio(message.chat.id,file)
+            # bot.send_chat_action(message.chat.id, "upload_audio")
+            # file = open('music/'+song_name+'.mp3')
+            # bot.send_audio(message.chat.id,file)
             bot.send_message(message.chat.id, answer,None,None,None, 'HTML' )
             log(message,answer)
             state[chat] = 2
