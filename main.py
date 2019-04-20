@@ -102,7 +102,7 @@ def getList(song,message):
     'User-Agent': 'My User Agent 1.0',
     'From': 'youremail@domain.com'  # This is another valid field
     }
-    url = "http://music.xn--41a.ws/search/"+urllib.request.quote(song)+"/"
+    url = "http://music.xn--41a.ws/search/"+(song)+"/"
     url = url.lower()
     print(url)
     htmlContent = requests.get(url, headers=headers)
