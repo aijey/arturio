@@ -1,1 +1,1 @@
-web: python main.py -p 4567
+worker: python main.py
