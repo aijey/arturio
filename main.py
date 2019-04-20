@@ -99,7 +99,7 @@ def getList(song,message):
     global pos
     global transChatId
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-    url = "http://music.xn--41a.ws/search/"+song+"/"
+    url = "http://music.xn--41a.ws/search/"+urllib.request.quote(song)+"/"
     print(url)
     htmlContent = requests.get(url, headers=headers)
     print(htmlContent)
