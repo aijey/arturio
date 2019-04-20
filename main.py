@@ -103,6 +103,7 @@ def getList(song,message):
     'From': 'youremail@domain.com'  # This is another valid field
     }
     url = "http://music.xn--41a.ws/search/"+urllib.request.quote(song)+"/"
+    url = url.downcase
     print(url)
     htmlContent = requests.get(url, headers=headers)
     print(htmlContent)
