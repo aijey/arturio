@@ -100,8 +100,9 @@ def getList(song,message):
     global transChatId
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
     url = "https://music.xn--41a.ws/search/"+song+"/"
+    print(url)
     htmlContent = requests.get(url, headers=headers)
-
+    print(htmlContent)
     s = htmlContent.content.decode("utf-8", "strict")
     result = []
     chat = transChatId[message.chat.id]
