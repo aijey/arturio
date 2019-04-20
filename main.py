@@ -2,10 +2,6 @@
 import telebot
 import urllib
 import requests
-import sys
-
-reload(sys)
-sys.setdefaultencoding('utf8')
 
 TOKEN = "743596317:AAFGbmXQOXakO_MpFWFkXzltzLB6__eRYOs"
 
