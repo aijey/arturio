@@ -99,7 +99,7 @@ def getList(song,message):
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
     url = "https://music.xn--41a.ws/search/"+song+"/"
     htmlContent = requests.get(url, headers=headers)
-    print(htmlContent);
+    print(htmlContent.content);
 
     s = htmlContent.content
     result = []
