@@ -1,1 +1,1 @@
-worker: python3 main.py -p 3333
+web: ruby app.rb -p 3333
