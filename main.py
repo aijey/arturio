@@ -259,4 +259,3 @@ bot.polling(none_stop=True, interval=1)
 # 0 -> default
 # 1 -> waiting for music_name
 # 2 -> select music from selection
-# 3 -> waiting for number of messages to delete
