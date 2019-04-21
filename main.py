@@ -161,8 +161,9 @@ def handle_help(message):
     global state,transChatId
     init(message)
     state[transChatId[message.chat.id]] = 0
-    answer = "Поки я вмію шукати музику. Пишеш /music, потім назву пісні або автора. Отримуєш список з 11 пісень (або менше) і" \
-             " вибераєш ту, яка тобі підходить. Потім чекаєш в середньому секунд 20 і отримуєш свій трек 😎😎😎"
+    answer = "Поки я вмію шукати музику. Пишеш /music, щоб ввімкнути режим музики, потім назву пісні або автора. Отримуєш список з 11 пісень (або менше) і" \
+             " вибераєш ту, яка тобі підходить. Потім чекаєш в середньому секунд 20 і отримуєш свій трек 😎😎😎. Після цього можеш знову написати /toggle_music_mode і " \
+             " вимкнути режим пошуку музики, або написати назву іншої пісні, якщо плануєш знайте ще одну."
     bot.send_message(message.chat.id, answer)
 
 
@@ -183,10 +184,16 @@ def handle_start(message):
 def handle_music(message):
     global state,transChatId
     init(message)
-    answer = "Що за музон хочеш?"
-    log(message, answer)
-    bot.send_message(message.chat.id,answer)
-    state[transChatId[message.chat.id]] = 1
+    if (state[transChatId[message.chat.id]] == 0):
+        answer = "Включивім режим пошуку музики"
+        log(message, answer)
+        bot.send_message(message.chat.id,answer)
+        state[transChatId[message.chat.id]] = 1
+    else :
+        answer = "Виключивім режим пошуку музики"
+        log(message, answer)
+        bot.send_message(message.chat.id,answer)
+        state[transChatId[message.chat.id]] = 0
 
 
 
@@ -211,7 +218,7 @@ def handle_selection(message):
         bot.send_audio(message.chat.id, audio = open('music/file'+str(chat)+'.mp3', 'rb'),
         performer =  ls[chat][indx][1],
         title = ls[chat][indx][2])
-        state[chat] = 0
+        state[chat] = 1
 
 
 
