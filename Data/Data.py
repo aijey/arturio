@@ -83,7 +83,7 @@ class UselessMessagesTable(DataBase):
             cursor.execute(commands,(message.message_id,message.chat.id,))
             self.dataBase.connection.commit()
             cursor.close()
-            print("Message " + message.message_id + " from chat: " + message.chat.id + " added to DB")
+            print("Message " + str(message.message_id) + " from chat: " + str(message.chat.id) + " added to DB")
         except (Exception, psycopg2.Error) as er:
             self.dataBase.connection.close()
             self.dataBase.connect()
