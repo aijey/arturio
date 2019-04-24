@@ -49,6 +49,8 @@ class ParamsTable(DataBase):
             cursor.close()
             return message_id
         except (Exception, psycopg2.Error) as er:
+            self.dataBase.connection.close()
+            self.dataBase.connect()
             print(er)
         return None
 
@@ -65,6 +67,8 @@ class ParamsTable(DataBase):
             cursor.close()
             print("Successfully saved")
         except (Exception, psycopg2.Error) as er:
+            self.dataBase.connection.close()
+            self.dataBase.connect()
             print(er)
 class UselessMessagesTable(DataBase):
     def __init__(self, dataBase):
@@ -79,5 +83,8 @@ class UselessMessagesTable(DataBase):
             cursor.execute(commands,(message.message_id,message.chat.id,))
             self.dataBase.connection.commit()
             cursor.close()
+            print("Message " + message.id + " from chat: " + message.chat.id + " added to DB")
         except (Exception, psycopg2.Error) as er:
+            self.dataBase.connection.close()
+            self.dataBase.connect()
             print(er)
