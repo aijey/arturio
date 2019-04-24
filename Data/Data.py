@@ -88,3 +88,21 @@ class UselessMessagesTable(DataBase):
             self.dataBase.connection.close()
             self.dataBase.connect()
             print(er)
+    def getMessages(self, chat_id):
+        try:
+            cursor = self.dataBase.connection.cursor()
+            commands = """
+            SELECT *
+            FROM UselessMessages
+            WHERE chat_id = %s
+            """
+
+            cursor.execute(commands,(chat_id,))
+            messages = cursor.fetchall()
+            print(messages)
+            cursor.close()
+        except(Exception, psycopg2.Error) as er:
+            self.dataBase.connection.close()
+            self.dataBase.connect()
+            print(er)
+        return None
