@@ -14,7 +14,7 @@ class ParamsTable:
             cursor = self.connection.cursor();
 
             commands = """ INSERT INTO PARAMS(var_name)
-                           VALUES(%s)"""
+                           VALUES(%s);"""
 
             cursor.execute(commands, ('schedule_message_id',))
             self.connection.commit()
@@ -29,7 +29,7 @@ class ParamsTable:
             commands = """
             SELECT value
             FROM params
-            WHERE var_name = "schedule_message_id"
+            WHERE var_name = 'schedule_message_id';
             """
             cursor.execute(commands)
             message_id = cursor.fetchall()[0]
@@ -48,7 +48,7 @@ class ParamsTable:
 
             commands = """ UPDATE PARAMS
                            SET value = %s
-                           WHERE var_name = 'schedule_message_id' """
+                           WHERE var_name = 'schedule_message_id'; """
 
             cursor.execute(commands, (message_id,))
             self.connection.commit()
