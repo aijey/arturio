@@ -10,7 +10,11 @@ class ParamsTable:
     def init(self):
         try:
             self.connection = psycopg2.connect(self.DATABASE_URL, sslmode='require')
-
+            print("Connection established")
+        except (Exception, psycopg2.Error) as er:
+            print(er)
+            return;
+        try:
             cursor = self.connection.cursor();
 
             commands = """ INSERT INTO PARAMS(var_name)
@@ -29,7 +33,7 @@ class ParamsTable:
             commands = """
             SELECT value
             FROM params
-            WHERE var_name = 'schedule_message_id';;
+            WHERE var_name = 'schedule_message_id';
             """
             cursor.execute(commands)
             message_id = cursor.fetchall()[0]
