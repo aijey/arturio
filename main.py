@@ -23,7 +23,7 @@ pos = []
 ls = [[]]
 dataBase = DataBase(DATABASE_URL)
 paramsTable = ParamsTable(dataBase)
-uselessMessagesTable = UselessMessages(dataBase)
+uselessMessagesTable = UselessMessagesTable(dataBase)
 
 
 
