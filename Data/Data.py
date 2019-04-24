@@ -11,24 +11,26 @@ class ParamsTable:
         try:
             self.connection = psycopg2.connect(self.DATABASE_URL, require = 'ssl')
             print("Connected to db")
+            return True
         except(Exception, psycopg2.Error) as er:
             print(er)
+            return False
     def init(self):
-        self.connect()
-        try:
-            cursor = self.connection.cursor();
+        if self.connect():
+            try:
+                cursor = self.connection.cursor();
 
-            commands = """ INSERT INTO PARAMS(var_name)
-                           VALUES(%s);"""
+                commands = """ INSERT INTO PARAMS(var_name)
+                               VALUES(%s);"""
 
-            cursor.execute(commands, ('schedule_message_id',))
-            self.connection.commit()
-            cursor.close()
-            print("Successful initialization of Params")
-        except (Exception, psycopg2.Error) as er:
-            self.connection.close()
-            self.connect()
-            print(er)
+                cursor.execute(commands, ('schedule_message_id',))
+                self.connection.commit()
+                cursor.close()
+                print("Successful initialization of Params")
+            except (Exception, psycopg2.Error) as er:
+                self.connection.close()
+                self.connect()
+                print(er)
 
     def getSchedule(self):
         try:
