@@ -2,7 +2,6 @@ import psycopg2
 class DataBase:
     def __init__(self, DATABASE_URL):
         self.DATABASE_URL = DATABASE_URL;
-        self.init()
     def __del__(self):
         self.connection.close()
         print("Connection closed")
@@ -15,22 +14,21 @@ class DataBase:
             print(er)
             return False
 class ParamsTable(DataBase):
-    def init(self):
-        if super().connect():
-            try:
-                cursor = super().connection.cursor();
+    def __init__(self):
+        try:
+            cursor = super().connection.cursor();
 
-                commands = """ INSERT INTO PARAMS(var_name)
-                               VALUES(%s);"""
+            commands = """ INSERT INTO PARAMS(var_name)
+                           VALUES(%s);"""
 
-                cursor.execute(commands, ('schedule_message_id',))
-                super().connection.commit()
-                cursor.close()
-                print("Successful initialization of Params")
-            except (Exception, psycopg2.Error) as er:
-                super().connection.close()
-                super().connect()
-                print(er)
+            cursor.execute(commands, ('schedule_message_id',))
+            super().connection.commit()
+            cursor.close()
+            print("Successful initialization of Params")
+        except (Exception, psycopg2.Error) as er:
+            super().connection.close()
+            super().connect()
+            print(er)
 
     def getSchedule(self):
         try:
