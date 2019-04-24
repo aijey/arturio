@@ -77,7 +77,7 @@ class UselessMessagesTable(DataBase):
             VALUES(%s,%s);
             """
             cursor.execute(commands,(message.message_id,message.chat.id,))
-            self.dataBase.commit()
+            self.dataBase.connection.commit()
             cursor.close()
         except (Exception, psycopg2.Error) as er:
             print(er)
