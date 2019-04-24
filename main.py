@@ -236,6 +236,7 @@ def handle_photo(message):
 
 @bot.message_handler(commands=['clear'])
 def handle_clear(message):
+    init(message)
     messages = uselessMessagesTable.getMessages(message.chat.id)
     for message_id in messages:
         try:
