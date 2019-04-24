@@ -9,7 +9,7 @@ class ParamsTable:
         print("Connection closed")
     def connect(self):
         try:
-            self.connection = psycopg2.connect(DATABASE_URL, require = 'ssl')
+            self.connection = psycopg2.connect(self.DATABASE_URL, require = 'ssl')
             print("Connected to db")
         except(Exception, psycopg2.Error) as er:
             print(er)
@@ -26,6 +26,7 @@ class ParamsTable:
             cursor.close()
             print("Successful initialization of Params")
         except (Exception, psycopg2.Error) as er:
+            self.connection.close()
             self.connect()
             print(er)
 
