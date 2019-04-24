@@ -7,13 +7,14 @@ class ParamsTable:
     def __del__(self):
         self.connection.close()
         print("Connection closed")
-    def init(self):
+    def connect(self):
         try:
-            self.connection = psycopg2.connect(self.DATABASE_URL, sslmode='require')
-            print("Connection established")
-        except (Exception, psycopg2.Error) as er:
+            self.connection = psycopg2.connect(DATABASE_URL, require = 'ssl')
+            print("Connected to db")
+        except(Exception, psycopg2.Error) as er:
             print(er)
-            return;
+    def init(self):
+        self.connect()
         try:
             cursor = self.connection.cursor();
 
@@ -25,6 +26,7 @@ class ParamsTable:
             cursor.close()
             print("Successful initialization of Params")
         except (Exception, psycopg2.Error) as er:
+            self.connect()
             print(er)
 
     def getSchedule(self):
