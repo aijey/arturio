@@ -234,6 +234,10 @@ def handle_photo(message):
         bot.send_message(message.chat.id, answer)
         state[chat] = 100
 
+# @bot.message_handler(commands=['clear'])
+# def handle_clear(message):
+#     messages = uselessMessagesTable.getMessages(message.chat.id)
+
 @bot.message_handler(commands=['schedule'])
 def handle_schedule(message):
     global state, transChatId
