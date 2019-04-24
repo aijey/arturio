@@ -20,6 +20,7 @@ class ParamsTable:
             self.connection.commit()
             cursor.close()
             print("Successful initialization of Params")
+            self.connection.close()
         except (Exception, psycopg2.Error) as er:
             print(er)
 
@@ -36,7 +37,7 @@ class ParamsTable:
             print("Got: schedule_message_id = " + message_id + " from params table")
 
             cursor.close()
-
+            self.connection.close()
             return message_id
         except (Exception, psycopg2.Error) as er:
             print(er)
@@ -53,6 +54,7 @@ class ParamsTable:
             cursor.execute(commands, (message_id,))
             self.connection.commit()
             cursor.close()
+            self.connection.close()
             print("Successfully saved")
         except (Exception, psycopg2.Error) as er:
             print(er)
