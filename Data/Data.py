@@ -92,7 +92,7 @@ class UselessMessagesTable(DataBase):
         try:
             cursor = self.dataBase.connection.cursor()
             commands = """
-            SELECT *
+            SELECT message_id
             FROM UselessMessages
             WHERE chat_id = %s
             """
