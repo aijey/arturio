@@ -239,10 +239,10 @@ def handle_clear(message):
     messages = uselessMessagesTable.getMessages(message.chat.id)
     for message_id in messages:
         try:
-            bot.delete_message(message_id,message.chat.id)
+            bot.delete_message(message.chat.id,message_id)
         except Exception as er:
-            print(er)
             print("Unsuccessful attempt of deleting message")
+            print(er)
 
 @bot.message_handler(commands=['schedule'])
 def handle_schedule(message):
