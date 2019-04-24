@@ -6,14 +6,13 @@ import urllib.request
 import ssl
 import psycopg2
 import os
-import psycopg2
+from Data.Data import *
 
 DATABASE_URL = os.environ['DATABASE_URL']
-
 TOKEN = "743596317:AAFGbmXQOXakO_MpFWFkXzltzLB6__eRYOs"
 PASSWORD = "admin"
 
-schedule_message_id = 0
+schedule_message_id = None
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -22,66 +21,8 @@ transChatId = {} # Transformed chatId into freeSpaceIndex
 state = []
 pos = []
 ls = [[]]
-def initDB():
-    try:
-        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+paramsTable = ParamsTable(DATABASE_URL)
 
-        cursor = connection.cursor();
-
-        commands = """ INSERT INTO PARAMS(var_name)
-                       VALUES(%s)"""
-
-        cursor.execute(commands, ('schedule_message_id',))
-        connection.commit()
-        connection.close()
-        cursor.close()
-        print("Successful initDB")
-    except (Exception, psycopg2.Error) as er:
-        print(er)
-
-def saveSchedule(message_id):
-    try:
-        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-
-        cursor = connection.cursor();
-
-        commands = """ UPDATE PARAMS
-                       SET value = %s
-                       WHERE var_name = 'schedule_message_id' """
-
-        cursor.execute(commands, (message_id,))
-        connection.commit()
-        connection.close()
-        cursor.close()
-        print("Successfully saved")
-        return True;
-    except (Exception, psycopg2.Error) as er:
-        print(er)
-        return False;
-def getSchedule():
-    try:
-        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-
-        cursor = connection.cursor()
-
-        commands = """
-        SELECT value
-        FROM params
-        WHERE var_name = 'schedule_message_id';
-        """
-
-        cursor.execute(commands)
-        message_id = cursor.fetchone()[0]
-        cursor.close()
-        connection.close()
-
-        return message_id
-
-
-
-    except (Exception, psycopg2.Error) as er:
-        print(er)
-        return None;
 
 
 def getLink(s,chat):
@@ -284,7 +225,7 @@ def handle_photo(message):
     chat = transChatId[message.chat.id]
     if (state[chat] == 102):
         schedule_message_id = message.message_id
-        saveSchedule(schedule_message_id);
+        paramsTable.setSchedule(schedule_message_id);
         answer = "Сохранив розклад. "
         log(message, answer)
         bot.send_message(message.chat.id, answer)
@@ -295,7 +236,7 @@ def handle_schedule(message):
     global state, transChatId
     init(message)
     chat = transChatId[message.chat.id]
-    schedule_message_id = getSchedule()
+    schedule_message_id = paramsTable.getSchedule()
     if (schedule_message_id is not None):
         answer = "Розклад:"
         bot.send_message(message.chat.id, answer)
@@ -392,7 +333,6 @@ def handle_text(message):
             bot.send_message(message.chat.id,answer)
             state[chat] = 0
 
-initDB()
 bot.polling(none_stop=True, interval=1)
 
 # states
