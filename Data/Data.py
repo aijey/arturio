@@ -98,9 +98,14 @@ class UselessMessagesTable(DataBase):
             """
 
             cursor.execute(commands,(chat_id,))
-            messages = cursor.fetchall()
+            data = cursor.fetchall()
+            print("GOT: ")
+            messages = []
+            for i in data:
+                messages.append(i[0])
             print(messages)
             cursor.close()
+            return messages
         except(Exception, psycopg2.Error) as er:
             self.dataBase.connection.close()
             self.dataBase.connect()
