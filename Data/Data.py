@@ -41,8 +41,7 @@ class ParamsTable:
             WHERE var_name = 'schedule_message_id';
             """
             cursor.execute(commands)
-            message_id = cursor.fetchall()[0]
-            print(message_id)
+            message_id = cursor.fetchone()[0]
             print("Got: schedule_message_id = " + message_id + " from params table")
 
             cursor.close()
