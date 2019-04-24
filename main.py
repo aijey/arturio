@@ -21,7 +21,7 @@ transChatId = {} # Transformed chatId into freeSpaceIndex
 state = []
 pos = []
 ls = [[]]
-dataBase = DataBase()
+dataBase = DataBase(DATABASE_URL)
 paramsTable = ParamsTable()
 uselessMessagesTable = UselessMessages()
 
