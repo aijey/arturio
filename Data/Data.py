@@ -4,7 +4,9 @@ class ParamsTable:
     def __init__(self, DATABASE_URL):
         self.DATABASE_URL = DATABASE_URL;
         self.init()
-
+    def __del__(self):
+        self.connection.close()
+        print("Connection closed")
     def init(self):
         try:
             self.connection = psycopg2.connect(self.DATABASE_URL, sslmode='require')
