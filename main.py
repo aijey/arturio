@@ -240,7 +240,8 @@ def handle_clear(message):
     for message_id in messages:
         try:
             bot.delete_message(message_id,message.chat.id)
-        except:
+        except Exception as er:
+            print(er)
             print("Unsuccessful attempt of deleting message")
 
 @bot.message_handler(commands=['schedule'])
