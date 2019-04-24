@@ -1,8 +1,8 @@
 import psycopg2
 class DataBase:
-    connection
     def __init__(self, DATABASE_URL):
         self.DATABASE_URL = DATABASE_URL;
+        self.connection = None
         self.connect()
     def __del__(self):
         self.connection.close()
