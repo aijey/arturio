@@ -23,7 +23,7 @@ class ParamsTable:
 
     def getSchedule(self):
         try:
-            curson = self.connection.cursor();
+            cursor = self.connection.cursor();
             commands = """
             SELECT value
             FROM params
