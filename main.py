@@ -4,7 +4,16 @@ import urllib
 import requests
 import urllib.request
 import ssl
+import psycopg2
+import os
+import psycopg2
+
+DATABASE_URL = os.environ['DATABASE_URL']
+
 TOKEN = "743596317:AAFGbmXQOXakO_MpFWFkXzltzLB6__eRYOs"
+PASSWORD = "admin"
+
+schedule_message_id = 0
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -13,7 +22,66 @@ transChatId = {} # Transformed chatId into freeSpaceIndex
 state = []
 pos = []
 ls = [[]]
+def initDB():
+    try:
+        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
 
+        cursor = connection.cursor();
+
+        commands = """ INSERT INTO PARAMS(var_name)
+                       VALUES(%s)"""
+
+        cursor.execute(commands, ('schedule_message_id',))
+        connection.commit()
+        connection.close()
+        cursor.close()
+        print("Successful initDB")
+    except (Exception, psycopg2.Error) as er:
+        print(er)
+
+def saveSchedule(message_id):
+    try:
+        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+
+        cursor = connection.cursor();
+
+        commands = """ UPDATE PARAMS
+                       SET value = %s
+                       WHERE var_name = 'schedule_message_id' """
+
+        cursor.execute(commands, (message_id,))
+        connection.commit()
+        connection.close()
+        cursor.close()
+        print("Successfully saved")
+        return True;
+    except (Exception, psycopg2.Error) as er:
+        print(er)
+        return False;
+def getSchedule():
+    try:
+        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+
+        cursor = connection.cursor()
+
+        commands = """
+        SELECT value
+        FROM params
+        WHERE var_name = 'schedule_message_id';
+        """
+
+        cursor.execute(commands)
+        message_id = cursor.fetchone()[0]
+        cursor.close()
+        connection.close()
+
+        return message_id
+
+
+
+    except (Exception, psycopg2.Error) as er:
+        print(er)
+        return None;
 
 
 def getLink(s,chat):
@@ -150,7 +218,9 @@ def init(message):
 
     ### LOG ###
     print ('User:' + message.from_user.first_name + ' chat_id:' + str(message.chat.id) +
-           ' chat:' + str(transChatId[message.chat.id]) + ' message:' + (message.text))
+           ' chat:' + str(transChatId[message.chat.id]))
+    if (message.text != None):
+        print('Message: ' + message.text)
 
 def log(message, answer):
     print('Reply to ' + message.from_user.first_name + ': ' + answer)
@@ -179,6 +249,62 @@ def handle_start(message):
     bot.send_message(message.chat.id, answer)
     log(message, answer)
 
+@bot.message_handler(commands=['admin'])
+def handle_admin(message):
+    global state, transChatId
+    init(message)
+    chat = transChatId[message.chat.id]
+    if (state[chat] < 100):
+        state[chat] = 101
+        answer = "Уведи пароль"
+        log(message, answer)
+        bot.send_message(message.chat.id, answer)
+    else:
+        if (state[chat] < 200):
+            answer = "logged out"
+            log(message, answer)
+            bot.send_message(message.chat.id, answer)
+            state[chat] = 0
+
+@bot.message_handler(commands=['setschedule'])
+def handle_setschedule(message):
+    global state, transChatId
+    init(message)
+    chat = transChatId[message.chat.id]
+    if (state[chat] == 100):
+        answer = "Скинь фотку розкладом"
+        log(message, answer)
+        bot.send_message(message.chat.id, answer)
+        state[chat] = 102
+
+@bot.message_handler(content_types=['photo'])
+def handle_photo(message):
+    global state, transChatId
+    init(message)
+    chat = transChatId[message.chat.id]
+    if (state[chat] == 102):
+        schedule_message_id = message.message_id
+        saveSchedule(schedule_message_id);
+        answer = "Сохранив розклад. "
+        log(message, answer)
+        bot.send_message(message.chat.id, answer)
+        state[chat] = 100
+
+@bot.message_handler(commands=['schedule'])
+def handle_schedule(message):
+    global state, transChatId
+    init(message)
+    chat = transChatId[message.chat.id]
+    schedule_message_id = getSchedule()
+    if (schedule_message_id is not None):
+        answer = "Розклад:"
+        bot.send_message(message.chat.id, answer)
+        bot.forward_message(message.chat.id, message.chat.id,schedule_message_id)
+        log(message, answer)
+    else:
+        answer = "Ниє у ня розклада"
+        bot.send_message(message.chat.id, answer)
+        log(message,answer)
 
 @bot.message_handler(commands=['music'])
 def handle_music(message):
@@ -215,11 +341,11 @@ def handle_selection(message):
         log(message,answer)
         # file = open('music/file'+str(chat)+'.mp3')
         bot.send_chat_action(message.chat.id,'upload_audio')
-        bot.send_audio(message.chat.id, audio = open('music/file'+str(chat)+'.mp3', 'rb'),
+        bot.send_audio(message.chat.id,
+        audio = open('music/file'+str(chat)+'.mp3', 'rb'),
         performer =  ls[chat][indx][1],
         title = ls[chat][indx][2])
         state[chat] = 1
-
 
 
         ### LOG ###
@@ -247,7 +373,6 @@ def handle_text(message):
             # bot.send_audio(message.chat.id,file)
             bot.send_message(message.chat.id, answer,None,None,None, 'HTML' )
             log(message,answer)
-
             state[chat] = 2
         else:
             print('da')
@@ -255,14 +380,25 @@ def handle_text(message):
             bot.send_message(message.chat.id,answer)
             log(message,answer)
 
+    if (state[chat] == 101):
+        if (message.text == PASSWORD):
+            answer = "logged in"
+            log(message,answer)
+            bot.send_message(message.chat.id,answer)
+            state[chat] = 100
+        else:
+            answer = "incorrect password"
+            log(message,answer)
+            bot.send_message(message.chat.id,answer)
             state[chat] = 0
 
-
-
-
+initDB()
 bot.polling(none_stop=True, interval=1)
 
 # states
 # 0 -> default
 # 1 -> waiting for music_name
 # 2 -> select music from selection
+# 101 -> waiting for password
+# 100 -> logged in as admin
+# 102 -> waiting for schedule
