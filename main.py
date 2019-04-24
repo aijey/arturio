@@ -22,8 +22,8 @@ state = []
 pos = []
 ls = [[]]
 dataBase = DataBase(DATABASE_URL)
-paramsTable = ParamsTable()
-uselessMessagesTable = UselessMessages()
+paramsTable = ParamsTable(dataBase)
+uselessMessagesTable = UselessMessages(dataBase)
 
 
 
