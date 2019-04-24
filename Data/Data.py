@@ -7,7 +7,7 @@ class ParamsTable:
 
     def init(self):
         try:
-            self.connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+            self.connection = psycopg2.connect(self.DATABASE_URL, sslmode='require')
 
             cursor = self.connection.cursor();
 
