@@ -42,6 +42,7 @@ class ParamsTable:
             """
             cursor.execute(commands)
             message_id = cursor.fetchall()[0]
+            print(message_id)
             print("Got: schedule_message_id = " + message_id + " from params table")
 
             cursor.close()
