@@ -2,6 +2,7 @@ import psycopg2
 class DataBase:
     def __init__(self, DATABASE_URL):
         self.DATABASE_URL = DATABASE_URL;
+        self.connect()
     def __del__(self):
         self.connection.close()
         print("Connection closed")
