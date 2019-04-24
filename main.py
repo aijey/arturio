@@ -21,7 +21,9 @@ transChatId = {} # Transformed chatId into freeSpaceIndex
 state = []
 pos = []
 ls = [[]]
-paramsTable = ParamsTable(DATABASE_URL)
+dataBase = DataBase()
+paramsTable = ParamsTable()
+uselessMessagesTable = UselessMessages()
 
 
 
@@ -156,6 +158,7 @@ def init(message):
     while (len(pos) <= transChatId[message.chat.id]):
         pos.append(0)
 
+    uselessMessagesTable.addMessage(message)
 
     ### LOG ###
     print ('User:' + message.from_user.first_name + ' chat_id:' + str(message.chat.id) +

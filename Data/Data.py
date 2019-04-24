@@ -1,6 +1,5 @@
 import psycopg2
-
-class ParamsTable:
+class DataBase:
     def __init__(self, DATABASE_URL):
         self.DATABASE_URL = DATABASE_URL;
         self.init()
@@ -15,26 +14,27 @@ class ParamsTable:
         except(Exception, psycopg2.Error) as er:
             print(er)
             return False
+class ParamsTable(DataBase):
     def init(self):
-        if self.connect():
+        if super().connect():
             try:
-                cursor = self.connection.cursor();
+                cursor = super().connection.cursor();
 
                 commands = """ INSERT INTO PARAMS(var_name)
                                VALUES(%s);"""
 
                 cursor.execute(commands, ('schedule_message_id',))
-                self.connection.commit()
+                super().connection.commit()
                 cursor.close()
                 print("Successful initialization of Params")
             except (Exception, psycopg2.Error) as er:
-                self.connection.close()
-                self.connect()
+                super().connection.close()
+                super().connect()
                 print(er)
 
     def getSchedule(self):
         try:
-            cursor = self.connection.cursor();
+            cursor = super().connection.cursor();
             commands = """
             SELECT value
             FROM params
@@ -52,15 +52,28 @@ class ParamsTable:
 
     def setSchedule(self,message_id):
         try:
-            cursor = self.connection.cursor();
+            cursor = super().connection.cursor();
 
             commands = """ UPDATE PARAMS
                            SET value = %s
                            WHERE var_name = 'schedule_message_id'; """
 
             cursor.execute(commands, (message_id,))
-            self.connection.commit()
+            super().connection.commit()
             cursor.close()
             print("Successfully saved")
+        except (Exception, psycopg2.Error) as er:
+            print(er)
+class UselessMessagesTable(DataBase):
+    def addMessage(message):
+        try:
+            cursor = super().connection.cursor()
+            commands = """
+            INSERT INTO UselessMessages(message_id,chat_id)
+            VALUES(%s,%s);
+            """
+            cursor.execute(commands,(message.message_id,message.chat.id,))
+            cursor.commit()
+            cursor.close()
         except (Exception, psycopg2.Error) as er:
             print(er)
