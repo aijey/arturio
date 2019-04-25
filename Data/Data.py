@@ -43,26 +43,26 @@ class ParamsTable(DataBase):
             WHERE var_name = 'schedule_message_id';
             """
             cursor.execute(commands)
-            message_id = cursor.fetchone()[0]
-            print("Got: schedule_message_id = " + message_id + " from params table")
+            data = cursor.fetchone()[0]
+            print("Got: schedule_message_id = " + data[1] + " from params table")
 
             cursor.close()
-            return message_id
+            return data
         except (Exception, psycopg2.Error) as er:
             self.dataBase.connection.close()
             self.dataBase.connect()
             print(er)
         return None
 
-    def setSchedule(self,message_id):
+    def setSchedule(self,message):
         try:
             cursor = self.dataBase.connection.cursor();
 
             commands = """ UPDATE PARAMS
                            SET value = %s
                            WHERE var_name = 'schedule_message_id'; """
-
-            cursor.execute(commands, (message_id,))
+            data = [message.chat.id,message.message_id]
+            cursor.execute(commands, (data,))
             self.dataBase.connection.commit()
             cursor.close()
             print("Successfully saved")

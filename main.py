@@ -227,8 +227,7 @@ def handle_photo(message):
     init(message)
     chat = transChatId[message.chat.id]
     if (state[chat] == 102):
-        schedule_message_id = message.message_id
-        paramsTable.setSchedule(schedule_message_id);
+        paramsTable.setSchedule(message);
         answer = "Сохранив розклад. "
         log(message, answer)
         bot.send_message(message.chat.id, answer)
@@ -250,11 +249,11 @@ def handle_schedule(message):
     global state, transChatId
     init(message)
     chat = transChatId[message.chat.id]
-    schedule_message_id = paramsTable.getSchedule()
+    schedule = paramsTable.getSchedule()
     if (schedule_message_id is not None):
         answer = "Розклад:"
         bot.send_message(message.chat.id, answer)
-        bot.forward_message(message.chat.id, message.chat.id,schedule_message_id)
+        bot.forward_message(message.chat.id, schedule[0],schedule[1])
         log(message, answer)
     else:
         answer = "Ниє у ня розклада"
