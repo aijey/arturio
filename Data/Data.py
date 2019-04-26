@@ -44,7 +44,7 @@ class ParamsTable(DataBase):
             """
             cursor.execute(commands)
             data = cursor.fetchone()[0]
-            print("Got: schedule_message_id = " + data[1] + " from params table")
+            print("Got: schedule_message_id = " + str(data[1]) + " chat_id = " + str(data[0]) + " from params table")
 
             cursor.close()
             return data

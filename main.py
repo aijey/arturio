@@ -355,3 +355,12 @@ bot.polling(none_stop=True, interval=1)
 # 101 -> waiting for password
 # 100 -> logged in as admin
 # 102 -> waiting for schedule
+CREATE TABLE public.params
+(
+    var_name text NOT NULL,
+    value integer[],
+    PRIMARY KEY (var_name)
+)
+WITH (
+    OIDS = FALSE
+);
