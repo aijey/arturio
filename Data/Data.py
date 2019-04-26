@@ -16,6 +16,9 @@ class DataBase:
             print(er)
         print("gg")
         return False
+    def reconnect(self):
+        self.connection.close()
+        self.connect()
 class ParamsTable(DataBase):
     def __init__(self,dataBase):
         self.dataBase = dataBase
@@ -88,6 +91,21 @@ class UselessMessagesTable(DataBase):
             self.dataBase.connection.close()
             self.dataBase.connect()
             print(er)
+    def clearMessages(self,chat_id):
+        try:
+            cursor = self.dataBase.connection.cursor()
+            commands = """
+            DELETE From UselessMessages
+            WHERE chat_id = %s
+            """
+            cursor.execute(commands,(chat_id,))
+            self.connection.commit()
+            cursir.close()
+            print("Deleted useless messages from " + str(chat_id))
+        except(Exception, psycopg2.Error) as er:
+            self.reconnect()
+            print(er)
+
     def getMessages(self, chat_id):
         try:
             cursor = self.dataBase.connection.cursor()
