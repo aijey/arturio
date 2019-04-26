@@ -179,7 +179,8 @@ def handle_help(message):
     answer = "Поки я вмію шукати музику. Пишеш /music, щоб ввімкнути режим музики, потім назву пісні або автора. Отримуєш список з 11 пісень (або менше) і" \
              " вибераєш ту, яка тобі підходить. Потім чекаєш в середньому секунд 20 і отримуєш свій трек 😎😎😎. Після цього можеш знову написати /music і " \
              " вимкнути режим пошуку музики, або написати назву іншої пісні, якщо плануєш знайте ще одну."
-    bot.send_message(message.chat.id, answer)
+    botmessage = bot.send_message(message.chat.id, answer)
+    uselessMessagesTable.addMessage(botmessage)
 
 
     ### LOG ###
@@ -191,7 +192,8 @@ def handle_start(message):
     init(message)
     state[transChatId[message.chat.id]] = 0
     answer = "Дороуля, тикай /help і всьо узнаєш"
-    bot.send_message(message.chat.id, answer)
+    botmessage = bot.send_message(message.chat.id, answer)
+    uselessMessagesTable.addMessage(botmessage)
     log(message, answer)
 
 @bot.message_handler(commands=['admin'])
@@ -203,12 +205,15 @@ def handle_admin(message):
         state[chat] = 101
         answer = "Уведи пароль"
         log(message, answer)
-        bot.send_message(message.chat.id, answer)
+        botmessage = bot.send_message(message.chat.id, answer)
+        uselessMessagesTable.addMessage(botmessage)
+
     else:
         if (state[chat] < 200):
             answer = "logged out"
             log(message, answer)
-            bot.send_message(message.chat.id, answer)
+            botmessage = bot.send_message(message.chat.id, answer)
+            uselessMessagesTable.addMessage(botmessage)
             state[chat] = 0
 
 @bot.message_handler(commands=['setschedule'])
@@ -219,7 +224,8 @@ def handle_setschedule(message):
     if (state[chat] == 100):
         answer = "Скинь фотку розкладом"
         log(message, answer)
-        bot.send_message(message.chat.id, answer)
+        botmessage = bot.send_message(message.chat.id, answer)
+        uselessMessagesTable.addMessage(botmessage)
         state[chat] = 102
 
 @bot.message_handler(content_types=['photo'])
@@ -229,10 +235,11 @@ def handle_photo(message):
     chat = transChatId[message.chat.id]
     if (state[chat] == 102):
         paramsTable.setSchedule(message);
-        answer = "Сохранив розклад. "
+        answer = "Сохранив розклад. (Кіть захочеш удалити, та удали лем для себе)"
         log(message, answer)
         uselessMessagesTable.removeMessage(message)
-        bot.send_message(message.chat.id, answer)
+        botmessage = bot.send_message(message.chat.id, answer)
+        uselessMessagesTable.addMessage(botmessage)
         state[chat] = 100
 
 @bot.message_handler(commands=['clear'])
@@ -255,13 +262,15 @@ def handle_schedule(message):
     schedule = paramsTable.getSchedule()
     try:
         answer = "Розклад:"
-        bot.send_message(message.chat.id, answer)
+        botmessage = bot.send_message(message.chat.id, answer)
+        uselessMessagesTable.addMessage(botmessage)
         bot.forward_message(message.chat.id, schedule[0],schedule[1])
         log(message, answer)
     except Exception as er:
         print(er)
         answer = "Ниє у ня розклада"
-        bot.send_message(message.chat.id, answer)
+        botmessage = bot.send_message(message.chat.id, answer)
+        uselessMessagesTable.addMessage(botmessage)
         log(message,answer)
 
 @bot.message_handler(commands=['music'])
@@ -271,12 +280,14 @@ def handle_music(message):
     if (state[transChatId[message.chat.id]] == 0):
         answer = "Включивім режим пошуку музики"
         log(message, answer)
-        bot.send_message(message.chat.id,answer)
+        botmessage = bot.send_message(message.chat.id, answer)
+        uselessMessagesTable.addMessage(botmessage)
         state[transChatId[message.chat.id]] = 1
     else :
         answer = "Виключивім режим пошуку музики"
         log(message, answer)
-        bot.send_message(message.chat.id,answer)
+        botmessage = bot.send_message(message.chat.id, answer)
+        uselessMessagesTable.addMessage(botmessage)
         state[transChatId[message.chat.id]] = 0
 
 
@@ -289,13 +300,15 @@ def handle_selection(message):
     chat = transChatId[message.chat.id]
     if (state[chat] == 2):
         answer = 'Ща всьо буде'
-        bot.send_message(message.chat.id,answer)
+        botmessage = bot.send_message(message.chat.id, answer)
+        uselessMessagesTable.addMessage(botmessage)
         log(message,answer)
         bot.send_chat_action(message.chat.id,'upload_audio')
         indx = int(message.text[1:])
         getFile(ls[chat][indx],chat)
         answer = 'Скачавім, гружу тепер тобі'
-        bot.send_message(message.chat.id,answer)
+        botmessage = bot.send_message(message.chat.id, answer)
+        uselessMessagesTable.addMessage(botmessage)
         log(message,answer)
         # file = open('music/file'+str(chat)+'.mp3')
         bot.send_chat_action(message.chat.id,'upload_audio')
@@ -315,7 +328,7 @@ def handle_text(message):
     global ls,transChatId
     init(message)
     chat = transChatId[message.chat.id]
-    if (state[chat] == 1):
+    if (state[chat] == 1 || state[chat] == 2):
         # bot.send_chat_action(message.chat.id, "record_audio")
         song_name = message.text
         song_name = song_name.replace(' ','-')
@@ -329,25 +342,29 @@ def handle_text(message):
             # bot.send_chat_action(message.chat.id, "upload_audio")
             # file = open('music/'+song_name+'.mp3')
             # bot.send_audio(message.chat.id,file)
-            bot.send_message(message.chat.id, answer,None,None,None, 'HTML' )
+            botmessage = bot.send_message(message.chat.id, answer,None,None,None, 'HTML' )
+            uselessMessagesTable.addMessage(botmessage)
             log(message,answer)
             state[chat] = 2
         else:
             print('da')
             answer = 'Сорямба, я нич не найшов'
-            bot.send_message(message.chat.id,answer)
+            botmessage = bot.send_message(message.chat.id, answer)
+            uselessMessagesTable.addMessage(botmessage)
             log(message,answer)
 
     if (state[chat] == 101):
         if (message.text == PASSWORD):
             answer = "logged in"
             log(message,answer)
-            bot.send_message(message.chat.id,answer)
+            botmessage = bot.send_message(message.chat.id, answer)
+            uselessMessagesTable.addMessage(botmessage)
             state[chat] = 100
         else:
             answer = "incorrect password"
             log(message,answer)
-            bot.send_message(message.chat.id,answer)
+            botmessage = bot.send_message(message.chat.id, answer)
+            uselessMessagesTable.addMessage(botmessage)
             state[chat] = 0
 
 bot.polling(none_stop=True, interval=1)
