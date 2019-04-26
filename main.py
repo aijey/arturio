@@ -8,6 +8,7 @@ import psycopg2
 import os
 from telebot import types
 from Data.Data import *
+import Search.youtube as youtube
 
 # DATABASE_URL = os.environ['DATABASE_URL']
 DATABASE_URL = "postgres://autltpnfsesakf:2eb9e796e60223c7c286f518f0215f16279c629b419eff77524b6d480d978022@ec2-54-227-245-146.compute-1.amazonaws.com:5432/df8cliiof9jbhi"
@@ -24,6 +25,7 @@ state = []
 musicMode = []
 pos = []
 ls = [[]]
+ytls = {}
 dataBase = DataBase(DATABASE_URL)
 paramsTable = ParamsTable(dataBase)
 uselessMessagesTable = UselessMessagesTable(dataBase)
@@ -279,16 +281,23 @@ def handle_schedule(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def handle_callback(call):
-    global ls,transChatId
+    global ls,transChatId,ytls
     message = call.message
-    indx = int(call.data)
+    indx = int(call.data[1:])
+    type = int(call.data[0])
     chat = transChatId[message.chat.id]
     answer = 'Ща всьо буде'
     botmessage = bot.send_message(message.chat.id, answer)
     uselessMessagesTable.addMessage(botmessage)
     log(message,answer)
     bot.send_chat_action(message.chat.id,'upload_audio')
-    getFile(ls[chat][indx][0],chat)
+    if (type == 1):
+        getFile(ls[chat][indx][0],chat)
+        performer = ls[chat][indx][1]
+        title = ls[chat][indx][2]
+    if (type == 2):
+        youtube.download(ytls[chat][indx][0],chat = chat)
+        performer,title = youtube.titleParse(ytls[chat][indx][1])
     answer = 'Скачавім, гружу тепер тобі'
     botmessage = bot.send_message(message.chat.id, answer)
     uselessMessagesTable.addMessage(botmessage)
@@ -297,10 +306,11 @@ def handle_callback(call):
     bot.send_chat_action(message.chat.id,'upload_audio')
     bot.send_audio(message.chat.id,
     audio = open('music/file'+str(chat)+'.mp3', 'rb'),
-    performer =  ls[chat][indx][1],
-    title = ls[chat][indx][2])
+    performer =  performer,
+    title = title
+    )
     state[chat] = 0
-    print("Music sent: " + ls[chat][indx][1] + " -- " + ls[chat][indx][2])
+    print("Music sent: " + performer + " -- " + title)
 @bot.message_handler(commands=['music'])
 def handle_music(message):
     global state,transChatId
@@ -356,7 +366,7 @@ def handle_music(message):
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
     global state
-    global ls,transChatId
+    global ls,transChatId,ytls
     init(message)
     chat = transChatId[message.chat.id]
     if (musicMode[chat] == 1):
@@ -364,7 +374,9 @@ def handle_text(message):
         song_name = message.text
         song_name = song_name.replace(' ','-')
         ls[chat] = getList(song_name, message)
-        if len(ls[chat])>0:
+        ytls[chat] = youtube.search(song_name)
+        print(len(ytls[chat]))
+        if len(ls[chat])>0 or ytls[chat]>0:
             answer = "Туй, але. (Після некст запроса буде недост)"
             id = 0
             markup = types.InlineKeyboardMarkup()
@@ -373,7 +385,7 @@ def handle_text(message):
                 # answer = answer + '/'+ str(id) + ' ' + (i[1]) + "- <b>" + (i[2]) + '</b> <em>' + i[3] + '</em>\n'
                 button = types.InlineKeyboardButton(
                 text = i[1] + " -- " + i[2] + " ( " + i[3] + " )",
-                callback_data = str(id)
+                callback_data = '1'+str(id)
                 )
                 id += 1
                 markup.add(button)
@@ -383,6 +395,23 @@ def handle_text(message):
             botmessage = bot.send_message(message.chat.id, answer,parse_mode ='HTML' ,reply_markup = markup)
             uselessMessagesTable.addMessage(botmessage)
             log(message,answer)
+
+            answer = "А туй ґомбички з ютуба"
+            id = 0
+            markup = types.InlineKeyboardMarkup()
+            for i in ytls[chat]:
+                button = types.InlineKeyboardButton(
+                text = i[1],
+                callback_data = '2'+str(id)
+                )
+                markup.add(button)
+                id+=1
+                if (id > 10):
+                    break
+            botmessage = bot.send_message(message.chat.id,answer,reply_markup = markup)
+            uselessMessagesTable.addMessage(botmessage)
+            log(message,answer)
+
             state[chat] = 1
         else:
             print('da')
