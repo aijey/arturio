@@ -3,6 +3,7 @@ import urllib.request
 import requests
 import youtube_dl
 import ssl
+import json
 gcontext = ssl.SSLContext()  # Only for gangstars
 ssl._create_default_https_context = ssl._create_unverified_context
 def search(query):
@@ -114,3 +115,30 @@ def getPlaylist(query):
             playlist_link += htmlContent[pos]
             pos+=1
     return playlist_link
+
+def getPlaylistInfo(playlist_link,chat="",playlistend=10):
+    if (playlistend > 20):
+        playlistend = 20
+    print(playlist_link)
+    ydl_opts = {
+        'nocheckcertificate': True,
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }],
+        'workaround': 'no-check-certificate',
+        'audioformat': 'mp3',
+        'playlistend' : playlistend,
+        'outtmpl': './music/playlist/' + str(chat) + '?%(playlist_index)s.%(ext)s'
+    }
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(playlist_link, download = False)
+        file = open("output.txt", mode = "w")
+        file.write(json.dumps(info))
+        res = []
+        for item in info['entries']:
+            video = ["https://www.youtube.com/watch?v=" + item['id'], item['title']]
+            res.append(video)
+        return res

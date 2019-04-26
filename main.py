@@ -365,22 +365,22 @@ def handle_text(message):
         answer = "Загружаю плейлист"
         botmessage = bot.send_message(message.chat.id,answer)
         uselessMessagesTable.addMessage(botmessage)
-        youtube.downloadPlaylist(playlist_link[chat],chat,val)
-        for i in range(1,val+1):
-            bot.send_chat_action(message.chat.id, 'upload_audio')
+        audios = youtube.getPlaylistInfo(playlist_link[chat],chat,val)
+        for audio in audios:
+            bot.send_chat_action(message.chat.id,'upload_audio')
+            youtube.download(audio[0],chat)
             try:
-                file = None
-                if (val >= 10):
-                    file = open('./music/playlist/' + str(chat) + '?0' + str(i) + '.mp3', 'rb')
-                else:
-                    file = open('./music/playlist/' + str(chat) + '?' + str(i) + '.mp3', 'rb')
+                file = open("./music/file" + str(chat) + ".mp3", 'rb')
+                performer, title = youtube.titleParse(audio[1])
                 botmessage = bot.send_audio(message.chat.id,
-                audio = file
-                )
+                audio = file,
+                performer = performer,
+                title = title)
                 uselessMessagesTable.addMessage(botmessage)
             except Exception as er:
-                print(Exception)
-        return
+                print(er)
+
+
 
     if (state[chat] == 50):
         playlist_link[chat] = youtube.getPlaylist(message.text)
@@ -392,7 +392,7 @@ def handle_text(message):
             state[chat] = 0
             return
         else:
-            answer = "Скільки похожих пісень скинути?"
+            answer = "Скільки похожих пісень скинути? (Max. 20)"
             botmessage = bot.send_message(message.chat.id,answer)
             uselessMessagesTable.addMessage(botmessage)
             state[chat] = 51
