@@ -6,9 +6,11 @@ import urllib.request
 import ssl
 import psycopg2
 import os
+from telebot import types
 from Data.Data import *
 
 DATABASE_URL = os.environ['DATABASE_URL']
+# DATABASE_URL = "postgres://autltpnfsesakf:2eb9e796e60223c7c286f518f0215f16279c629b419eff77524b6d480d978022@ec2-54-227-245-146.compute-1.amazonaws.com:5432/df8cliiof9jbhi"
 TOKEN = "743596317:AAFGbmXQOXakO_MpFWFkXzltzLB6__eRYOs"
 PASSWORD = "admin"
 
@@ -19,6 +21,7 @@ bot = telebot.TeleBot(TOKEN)
 lastNotUsed = 0
 transChatId = {} # Transformed chatId into freeSpaceIndex
 state = []
+musicMode = []
 pos = []
 ls = [[]]
 dataBase = DataBase(DATABASE_URL)
@@ -138,14 +141,13 @@ def getList(song,message):
     return result
 
 
-def getFile(a,chat):
+def getFile(link,chat):
     file_name = 'music/file'+str(chat)+'.mp3'
-    url = 'http://music.xn--41a.ws' + a[0]
-    print('downloading: ' + a[1] + '-' + a[2])
+    url = 'http://music.xn--41a.ws' + link
+    print("Downloading: " + url);
     gcontext = ssl.SSLContext()  # Only for gangstars
     ssl._create_default_https_context = ssl._create_unverified_context
     urllib.request.urlretrieve(url, file_name)
-    print('music downloaded: ' + a[1] + '-' + a[2])
 def init(message):
     global state,lastNotUsed,transChatId,ls,pos,message_ids
     if (transChatId.get(message.chat.id,-1) == -1):
@@ -157,7 +159,8 @@ def init(message):
         ls.append([])
     while (len(pos) <= transChatId[message.chat.id]):
         pos.append(0)
-
+    while (len(musicMode) <= transChatId[message.chat.id]):
+        musicMode.append(0)
 
     uselessMessagesTable.addMessage(message)
 
@@ -264,7 +267,8 @@ def handle_schedule(message):
         answer = "Розклад:"
         botmessage = bot.send_message(message.chat.id, answer)
         uselessMessagesTable.addMessage(botmessage)
-        bot.forward_message(message.chat.id, schedule[0],schedule[1])
+        botmessage = bot.forward_message(message.chat.id, schedule[0],schedule[1])
+        uselessMessagesTable.addMessage(botmessage)
         log(message, answer)
     except Exception as er:
         print(er)
@@ -273,54 +277,81 @@ def handle_schedule(message):
         uselessMessagesTable.addMessage(botmessage)
         log(message,answer)
 
+@bot.callback_query_handler(func=lambda call: True)
+def handle_callback(call):
+    global ls,transChatId
+    message = call.message
+    indx = int(call.data)
+    chat = transChatId[message.chat.id]
+    answer = 'Ща всьо буде'
+    botmessage = bot.send_message(message.chat.id, answer)
+    uselessMessagesTable.addMessage(botmessage)
+    log(message,answer)
+    bot.send_chat_action(message.chat.id,'upload_audio')
+    getFile(ls[chat][indx][0],chat)
+    answer = 'Скачавім, гружу тепер тобі'
+    botmessage = bot.send_message(message.chat.id, answer)
+    uselessMessagesTable.addMessage(botmessage)
+    log(message,answer)
+    # file = open('music/file'+str(chat)+'.mp3')
+    bot.send_chat_action(message.chat.id,'upload_audio')
+    bot.send_audio(message.chat.id,
+    audio = open('music/file'+str(chat)+'.mp3', 'rb'),
+    performer =  ls[chat][indx][1],
+    title = ls[chat][indx][2])
+    state[chat] = 0
+    print("Music sent: " + ls[chat][indx][1] + " -- " + ls[chat][indx][2])
 @bot.message_handler(commands=['music'])
 def handle_music(message):
     global state,transChatId
     init(message)
-    if (state[transChatId[message.chat.id]] == 0):
+    chat_id = transChatId[message.chat.id]
+    if (musicMode[chat_id] == 0):
         answer = "Включивім режим пошуку музики"
         log(message, answer)
         botmessage = bot.send_message(message.chat.id, answer)
         uselessMessagesTable.addMessage(botmessage)
-        state[transChatId[message.chat.id]] = 1
+        musicMode[chat_id] = 1
     else :
         answer = "Виключивім режим пошуку музики"
         log(message, answer)
         botmessage = bot.send_message(message.chat.id, answer)
         uselessMessagesTable.addMessage(botmessage)
-        state[transChatId[message.chat.id]] = 0
+        musicMode[chat_id] = 0
 
 
-
-@bot.message_handler(commands=['0','1','2','3','4','5','6','7','8','9','10'])
-def handle_selection(message):
-    global state
-    global ls,transChatId
-    init(message)
-    chat = transChatId[message.chat.id]
-    if (state[chat] == 2):
-        answer = 'Ща всьо буде'
-        botmessage = bot.send_message(message.chat.id, answer)
-        uselessMessagesTable.addMessage(botmessage)
-        log(message,answer)
-        bot.send_chat_action(message.chat.id,'upload_audio')
-        indx = int(message.text[1:])
-        getFile(ls[chat][indx],chat)
-        answer = 'Скачавім, гружу тепер тобі'
-        botmessage = bot.send_message(message.chat.id, answer)
-        uselessMessagesTable.addMessage(botmessage)
-        log(message,answer)
-        # file = open('music/file'+str(chat)+'.mp3')
-        bot.send_chat_action(message.chat.id,'upload_audio')
-        bot.send_audio(message.chat.id,
-        audio = open('music/file'+str(chat)+'.mp3', 'rb'),
-        performer =  ls[chat][indx][1],
-        title = ls[chat][indx][2])
-        state[chat] = 1
+# BUTTONS USED
 
 
-        ### LOG ###
-        print("Music sent: "+ ls[chat][indx][1] + '-' + ls[chat][indx][2])
+# @bot.message_handler(commands=['0','1','2','3','4','5','6','7','8','9','10'])
+# def handle_selection(message):
+#     global state
+#     global ls,transChatId
+#     init(message)
+#     chat = transChatId[message.chat.id]
+#     if (state[chat] == 1):
+#         answer = 'Ща всьо буде'
+#         botmessage = bot.send_message(message.chat.id, answer)
+#         uselessMessagesTable.addMessage(botmessage)
+#         log(message,answer)
+#         bot.send_chat_action(message.chat.id,'upload_audio')
+#         indx = int(message.text[1:])
+#         getFile(ls[chat][indx][0],chat)
+#         answer = 'Скачавім, гружу тепер тобі'
+#         botmessage = bot.send_message(message.chat.id, answer)
+#         uselessMessagesTable.addMessage(botmessage)
+#         log(message,answer)
+#         # file = open('music/file'+str(chat)+'.mp3')
+#         bot.send_chat_action(message.chat.id,'upload_audio')
+#         bot.send_audio(message.chat.id,
+#         audio = open('music/file'+str(chat)+'.mp3', 'rb'),
+#         performer =  ls[chat][indx][1],
+#         title = ls[chat][indx][2])
+#         state[chat] = 0
+#
+#
+#         ### LOG ###
+#         print("Music sent: "+ ls[chat][indx][1] + '-' + ls[chat][indx][2])
 
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
@@ -328,24 +359,31 @@ def handle_text(message):
     global ls,transChatId
     init(message)
     chat = transChatId[message.chat.id]
-    if (state[chat] == 1 or state[chat] == 2):
+    if (musicMode[chat] == 1):
         # bot.send_chat_action(message.chat.id, "record_audio")
         song_name = message.text
         song_name = song_name.replace(' ','-')
         ls[chat] = getList(song_name, message)
         if len(ls[chat])>0:
-            answer = ""
+            answer = "Туй, але. (Після некст запроса буде недост)"
             id = 0
+            markup = types.InlineKeyboardMarkup()
             for i in ls[chat]:
-                answer = answer + '/'+ str(id) + ' ' + (i[1]) + "- <b>" + (i[2]) + '</b> <em>' + i[3] + '</em>\n'
-                id = id + 1
+                # BUTTONS INSEAD
+                # answer = answer + '/'+ str(id) + ' ' + (i[1]) + "- <b>" + (i[2]) + '</b> <em>' + i[3] + '</em>\n'
+                button = types.InlineKeyboardButton(
+                text = i[1] + " -- " + i[2] + " ( " + i[3] + " )",
+                callback_data = str(id)
+                )
+                id += 1
+                markup.add(button)
             # bot.send_chat_action(message.chat.id, "upload_audio")
             # file = open('music/'+song_name+'.mp3')
             # bot.send_audio(message.chat.id,file)
-            botmessage = bot.send_message(message.chat.id, answer,None,None,None, 'HTML' )
+            botmessage = bot.send_message(message.chat.id, answer,parse_mode ='HTML' ,reply_markup = markup)
             uselessMessagesTable.addMessage(botmessage)
             log(message,answer)
-            state[chat] = 2
+            state[chat] = 1
         else:
             print('da')
             answer = 'Сорямба, я нич не найшов'
@@ -371,8 +409,8 @@ bot.polling(none_stop=True, interval=1)
 
 # states
 # 0 -> default
-# 1 -> waiting for music_name
-# 2 -> select music from selection
+# 1 -> select music from selection
+# 50 -> select Group
 # 101 -> waiting for password
 # 100 -> logged in as admin
 # 102 -> waiting for schedule
