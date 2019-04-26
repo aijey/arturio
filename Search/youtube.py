@@ -63,10 +63,28 @@ def download(link,chat=""):
         }],
         'workaround': 'no-check-certificate',
         'audioformat': 'mp3',
-        'outtmpl': './music/file' + str(chat) + '.%(ext)s'
+        'outtmpl': './music/file' + str(chat) +'.%(ext)s'
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([link])
+
+def downloadPlaylist(playlist_link,chat,playlistend=10):
+    print("D-loading playlist for: " + str(chat))
+    ydl_opts = {
+        'nocheckcertificate': True,
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }],
+        'workaround': 'no-check-certificate',
+        'audioformat': 'mp3',
+        'playlistend' : playlistend,
+        'outtmpl': './music/playlist/' + str(chat) + '?%(playlist_index)s.%(ext)s'
+    }
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([playlist_link])
 
 def titleParse(title):
     pos = title.find('-')
@@ -76,3 +94,23 @@ def titleParse(title):
     if (pos2 == -1):
         pos2 = pos
     return title[:(pos-1)],title[(pos2+1):]
+
+def getPlaylist(query):
+    res = search(query)
+    if (len(res)==0):
+        return None
+    link = res[0][0]
+    htmlContent = requests.get(link).content.decode()
+    pos = 0
+    to_search = "<li class=\"video-list-item related-list-item  show-video-time related-list-item-compact-radio\"><a href=\""
+
+    pos = htmlContent.find(to_search,pos)
+    playlist_link = "https://youtube.com"
+    if (pos == -1):
+        return None
+    else:
+        pos+=len(to_search)
+        while htmlContent[pos]!="\"":
+            playlist_link += htmlContent[pos]
+            pos+=1
+    return playlist_link

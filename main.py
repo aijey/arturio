@@ -23,6 +23,7 @@ bot = telebot.TeleBot(TOKEN)
 lastNotUsed = 0
 transChatId = {} # Transformed chatId into freeSpaceIndex
 state = []
+playlist_link = {}
 musicMode = []
 pos = []
 ls = [[]]
@@ -333,39 +334,16 @@ def handle_music(message):
         uselessMessagesTable.addMessage(botmessage)
         musicMode[chat_id] = 0
 
-
-# BUTTONS USED
-
-
-# @bot.message_handler(commands=['0','1','2','3','4','5','6','7','8','9','10'])
-# def handle_selection(message):
-#     global state
-#     global ls,transChatId
-#     init(message)
-#     chat = transChatId[message.chat.id]
-#     if (state[chat] == 1):
-#         answer = 'Ща всьо буде'
-#         botmessage = bot.send_message(message.chat.id, answer)
-#         uselessMessagesTable.addMessage(botmessage)
-#         log(message,answer)
-#         bot.send_chat_action(message.chat.id,'upload_audio')
-#         indx = int(message.text[1:])
-#         getFile(ls[chat][indx][0],chat)
-#         answer = 'Скачавім, гружу тепер тобі'
-#         botmessage = bot.send_message(message.chat.id, answer)
-#         uselessMessagesTable.addMessage(botmessage)
-#         log(message,answer)
-#         # file = open('music/file'+str(chat)+'.mp3')
-#         bot.send_chat_action(message.chat.id,'upload_audio')
-#         bot.send_audio(message.chat.id,
-#         audio = open('music/file'+str(chat)+'.mp3', 'rb'),
-#         performer =  ls[chat][indx][1],
-#         title = ls[chat][indx][2])
-#         state[chat] = 0
-#
-#
-#         ### LOG ###
-#         print("Music sent: "+ ls[chat][indx][1] + '-' + ls[chat][indx][2])
+@bot.message_handler(commands=['similar'])
+def handle_similar(message):
+    global state,transChatId
+    init(message)
+    chat = transChatId[message.chat.id]
+    if (state[chat] < 100):
+        answer = "Введи назву пісні"
+        botmessage = bot.send_message(message.chat.id, answer)
+        uselessMessagesTable.addMessage(botmessage)
+        state[chat] = 50
 
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
@@ -373,6 +351,68 @@ def handle_text(message):
     global ls,transChatId,ytls
     init(message)
     chat = transChatId[message.chat.id]
+
+
+    if (state[chat] == 51):
+        val = 0
+        try:
+            val = int(message.text)
+        except:
+            answer = "Введи ціле число"
+            botmessage = bot.send_message(message.chat.id,answer)
+            uselessMessagesTable.addMessage(botmessage)
+            return
+        answer = "Загружаю плейлист"
+        botmessage = bot.send_message(message.chat.id,answer)
+        uselessMessagesTable.addMessage(botmessage)
+        youtube.downloadPlaylist(playlist_link[chat],chat,val)
+        for i in range(1,val+1):
+            bot.send_chat_action(message.chat.id, 'upload_audio')
+            try:
+                file = None
+                if (val >= 10):
+                    file = open('./music/playlist/' + str(chat) + '?0' + str(i) + '.mp3', 'rb')
+                else:
+                    file = open('./music/playlist/' + str(chat) + '?' + str(i) + '.mp3', 'rb')
+                botmessage = bot.send_audio(message.chat.id,
+                audio = file
+                )
+                uselessMessagesTable.addMessage(botmessage)
+            except Exception as er:
+                print(Exception)
+        return
+
+    if (state[chat] == 50):
+        playlist_link[chat] = youtube.getPlaylist(message.text)
+        if (playlist_link[chat] is None):
+            answer = "Нич похожого не найшовім"
+            botmessage = bot.send_message(message.chat.id,answer)
+            uselessMessagesTable.addMessage(botmessage)
+            log(message,answer)
+            state[chat] = 0
+            return
+        else:
+            answer = "Скільки похожих пісень скинути?"
+            botmessage = bot.send_message(message.chat.id,answer)
+            uselessMessagesTable.addMessage(botmessage)
+            state[chat] = 51
+            return
+
+    if (state[chat] == 101):
+        if (message.text == PASSWORD):
+            answer = "logged in"
+            log(message,answer)
+            botmessage = bot.send_message(message.chat.id, answer)
+            uselessMessagesTable.addMessage(botmessage)
+            state[chat] = 100
+        else:
+            answer = "incorrect password"
+            log(message,answer)
+            botmessage = bot.send_message(message.chat.id, answer)
+            uselessMessagesTable.addMessage(botmessage)
+            state[chat] = 0
+        return
+
     if (musicMode[chat] == 1):
         # bot.send_chat_action(message.chat.id, "record_audio")
         song_name = message.text
@@ -415,8 +455,6 @@ def handle_text(message):
             botmessage = bot.send_message(message.chat.id,answer,reply_markup = markup)
             uselessMessagesTable.addMessage(botmessage)
             log(message,answer)
-
-            state[chat] = 1
         else:
             print('da')
             answer = 'Сорямба, я нич не найшов'
@@ -424,25 +462,10 @@ def handle_text(message):
             uselessMessagesTable.addMessage(botmessage)
             log(message,answer)
 
-    if (state[chat] == 101):
-        if (message.text == PASSWORD):
-            answer = "logged in"
-            log(message,answer)
-            botmessage = bot.send_message(message.chat.id, answer)
-            uselessMessagesTable.addMessage(botmessage)
-            state[chat] = 100
-        else:
-            answer = "incorrect password"
-            log(message,answer)
-            botmessage = bot.send_message(message.chat.id, answer)
-            uselessMessagesTable.addMessage(botmessage)
-            state[chat] = 0
-
 bot.polling(none_stop=True, interval=1)
 
 # states
 # 0 -> default
-# 1 -> select music from selection
 # 50 -> select Group
 # 101 -> waiting for password
 # 100 -> logged in as admin
