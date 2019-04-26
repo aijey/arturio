@@ -379,6 +379,8 @@ def handle_text(message):
                 uselessMessagesTable.addMessage(botmessage)
             except Exception as er:
                 print(er)
+        state[chat] = 0
+        return
 
 
 
