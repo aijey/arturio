@@ -99,7 +99,7 @@ class UselessMessagesTable(DataBase):
             WHERE chat_id = %s
             """
             cursor.execute(commands,(chat_id,))
-            self.connection.commit()
+            self.dataBase.connection.commit()
             cursir.close()
             print("Deleted useless messages from " + str(chat_id))
         except(Exception, psycopg2.Error) as er:
