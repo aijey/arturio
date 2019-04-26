@@ -328,7 +328,7 @@ def handle_text(message):
     global ls,transChatId
     init(message)
     chat = transChatId[message.chat.id]
-    if (state[chat] == 1 || state[chat] == 2):
+    if (state[chat] == 1 or state[chat] == 2):
         # bot.send_chat_action(message.chat.id, "record_audio")
         song_name = message.text
         song_name = song_name.replace(' ','-')
