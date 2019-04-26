@@ -25,6 +25,8 @@ def search(query):
         if (pos == -1):
             break
         pos = htmlContent.find("<a href=",pos)
+        if (pos == -1):
+            break
         pos += 9
         link = ""
         title = ""

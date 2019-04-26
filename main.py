@@ -311,6 +311,9 @@ def handle_callback(call):
     title = title
     )
     state[chat] = 0
+    answer = 'Пиши /clear , щоб удалити лишні повідомлення'
+    botmessage = bot.send_message(message.chat.id,answer)
+    uselessMessagesTable.addMessage(botmessage)
     print("Music sent: " + performer + " -- " + title)
 @bot.message_handler(commands=['music'])
 def handle_music(message):
@@ -377,7 +380,7 @@ def handle_text(message):
         ls[chat] = getList(song_name, message)
         ytls[chat] = youtube.search(song_name)
         print(len(ytls[chat]))
-        if len(ls[chat])>0 or ytls[chat]>0:
+        if len(ls[chat])>0 or len(ytls[chat])>0:
             answer = "Туй, але. (Після некст запроса буде недост)"
             id = 0
             markup = types.InlineKeyboardMarkup()
