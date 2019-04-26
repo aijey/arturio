@@ -158,6 +158,7 @@ def init(message):
     while (len(pos) <= transChatId[message.chat.id]):
         pos.append(0)
 
+
     uselessMessagesTable.addMessage(message)
 
     ### LOG ###
@@ -230,6 +231,7 @@ def handle_photo(message):
         paramsTable.setSchedule(message);
         answer = "Сохранив розклад. "
         log(message, answer)
+        uselessMessagesTable.removeMessage(message)
         bot.send_message(message.chat.id, answer)
         state[chat] = 100
 
@@ -251,12 +253,13 @@ def handle_schedule(message):
     init(message)
     chat = transChatId[message.chat.id]
     schedule = paramsTable.getSchedule()
-    if (schedule is not None):
+    try:
         answer = "Розклад:"
         bot.send_message(message.chat.id, answer)
         bot.forward_message(message.chat.id, schedule[0],schedule[1])
         log(message, answer)
-    else:
+    except Exception as er:
+        print(er)
         answer = "Ниє у ня розклада"
         bot.send_message(message.chat.id, answer)
         log(message,answer)

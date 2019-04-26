@@ -91,6 +91,20 @@ class UselessMessagesTable(DataBase):
             self.dataBase.connection.close()
             self.dataBase.connect()
             print(er)
+    def removeMessage(self,message):
+        try:
+            cursor = self.dataBase.connection.cursor()
+            commands = """
+            DELETE FROM UselessMessages
+            WHERE message_id = %s AND chat_id = %s
+            """
+            cursor.execute(commands,(message.message_id,message.chat.id,))
+            self.dataBase.connection.commit()
+            cursor.close()
+            print("Deleted message_id = " + str(message.message_id) + " chat_id = " + str(message.chat.id))
+        except (Exception, psycopg2.Error) as er:
+            self.dataBase.reconnect()
+            print(er)
     def clearMessages(self,chat_id):
         try:
             cursor = self.dataBase.connection.cursor()
