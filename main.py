@@ -250,7 +250,7 @@ def handle_schedule(message):
     init(message)
     chat = transChatId[message.chat.id]
     schedule = paramsTable.getSchedule()
-    if (schedule_message_id is not None):
+    if (schedule is not None):
         answer = "Розклад:"
         bot.send_message(message.chat.id, answer)
         bot.forward_message(message.chat.id, schedule[0],schedule[1])
