@@ -11,9 +11,10 @@ from Data.Data import *
 import Search.youtube as youtube
 
 
-DATABASE_URL = os.environ['DATABASE_URL']
+DATABASE_URL = os.environ['DATABASE_URL'] # <- RELEASE
 # DATABASE_URL = "postgres://autltpnfsesakf:2eb9e796e60223c7c286f518f0215f16279c629b419eff77524b6d480d978022@ec2-54-227-245-146.compute-1.amazonaws.com:5432/df8cliiof9jbhi"
-TOKEN = "743596317:AAFGbmXQOXakO_MpFWFkXzltzLB6__eRYOs"
+TOKEN = "743596317:AAFGbmXQOXakO_MpFWFkXzltzLB6__eRYOs" # <- RELEASE
+# TOKEN = "816874983:AAF4PVoOWkfI3-CmdJiceL-iW9Ad0VDpMTg"
 PASSWORD = "admin"
 
 schedule_message_id = None
@@ -154,7 +155,7 @@ def getFile(link,chat):
     ssl._create_default_https_context = ssl._create_unverified_context
     urllib.request.urlretrieve(url, file_name)
 def init(message):
-    global state,lastNotUsed,transChatId,ls,pos,message_ids
+    global state,lastNotUsed,transChatId,ls,pos,message_ids,stop
     if (transChatId.get(message.chat.id,-1) == -1):
         transChatId[message.chat.id]=lastNotUsed
         lastNotUsed = lastNotUsed + 1
@@ -166,6 +167,8 @@ def init(message):
         pos.append(0)
     while (len(musicMode) <= transChatId[message.chat.id]):
         musicMode.append(0)
+
+    stop[transChatId[message.chat.id]] = False
 
     uselessMessagesTable.addMessage(message)
 
@@ -358,7 +361,46 @@ def handle_text(message):
     init(message)
     chat = transChatId[message.chat.id]
 
-
+    if (state[chat] == 52):
+        markup = types.ReplyKeyboardRemove()
+        if (message.text == "SAVE ALL" or message.text == "PLAY ALL"):
+            answer = 'Понявім (/stop , щоб остановити)'
+        else:
+            answer = "Ясно-понятно"
+        botmessage = bot.send_message(message.chat.id,answer,
+        reply_markup = markup)
+        uselessMessagesTable.addMessage(botmessage)
+        if (message.text == "SAVE ALL"):
+            for audio in ytls[chat]:
+                if (stop[chat] == True):
+                    stop[chat] = False
+                    break
+                bot.send_chat_action(message.chat.id, 'upload_audio')
+                youtube.download(audio[0],chat)
+                performer, title = youtube.titleParse(audio[1])
+                file = open('music/file' + str(chat) +'.mp3', 'rb')
+                bot.send_audio(message.chat.id,
+                audio = file,
+                performer = performer,
+                title = title
+                )
+        if (message.text == "PLAY ALL"):
+            for audio in ytls[chat]:
+                if (stop[chat] == True):
+                    stop[chat] = False
+                    break
+                bot.send_chat_action(message.chat.id, 'upload_audio')
+                youtube.download(audio[0],chat)
+                performer, title = youtube.titleParse(audio[1])
+                file = open('music/file' + str(chat) +'.mp3', 'rb')
+                botmessage = bot.send_audio(message.chat.id,
+                audio = file,
+                performer = performer,
+                title = title
+                )
+                uselessMessagesTable.addMessage(botmessage)
+        state[chat] = 0
+        return
     if (state[chat] == 51):
         val = 0
         try:
@@ -368,32 +410,37 @@ def handle_text(message):
             botmessage = bot.send_message(message.chat.id,answer)
             uselessMessagesTable.addMessage(botmessage)
             return
-        answer = "Загружаю плейлист (/stop - щоб остановити)"
+        answer = "Загружаю плейлист"
         botmessage = bot.send_message(message.chat.id,answer)
         uselessMessagesTable.addMessage(botmessage)
-        audios = youtube.getPlaylistInfo(playlist_link[chat],chat,val)
-        for audio in audios:
-            if (chat in stop and stop[chat] == True ):
-                stop[chat] = False
-                break
-            bot.send_chat_action(message.chat.id,'upload_audio')
-            youtube.download(audio[0],chat)
-            try:
-                file = open("./music/file" + str(chat) + ".mp3", 'rb')
-                performer, title = youtube.titleParse(audio[1])
-                botmessage = bot.send_audio(message.chat.id,
-                audio = file,
-                performer = performer,
-                title = title)
-                uselessMessagesTable.addMessage(botmessage)
-            except Exception as er:
-                print(er)
-        state[chat] = 0
-        answer = "Удалити всі ці пісні - /clear"
-        botmessage = bot.send_message(message.chat.id,answer)
+        ytls[chat] = youtube.getPlaylistInfo(playlist_link[chat],chat,val)
+        markup = types.InlineKeyboardMarkup()
+        id = 0
+        for audio in ytls[chat]:
+            button = types.InlineKeyboardButton(
+            text = audio[1],
+            callback_data = '2' + str(id)
+            )
+            markup.add(button)
+            id += 1
+        answer = "Плейлист:"
+        botmessage = bot.send_message(message.chat.id, answer,
+        reply_markup = markup)
         uselessMessagesTable.addMessage(botmessage)
-        return
 
+
+        markup = types.ReplyKeyboardMarkup()
+        btn1 = types.KeyboardButton('PLAY ALL')
+        btn2 = types.KeyboardButton('SAVE ALL')
+        markup.add(btn1,btn2)
+        btn3 = types.KeyboardButton('Я вибрав (виберу) сам')
+        markup.add(btn3)
+        answer = "Вибери один з варіантів або просто тикни на пісню яку скачати"
+        botmessage = bot.send_message(message.chat.id,answer,
+        reply_markup = markup)
+        uselessMessagesTable.addMessage(botmessage)
+        state[chat] = 52
+        return
 
 
     if (state[chat] == 50):
