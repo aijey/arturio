@@ -368,7 +368,7 @@ def handle_text(message):
             botmessage = bot.send_message(message.chat.id,answer)
             uselessMessagesTable.addMessage(botmessage)
             return
-        answer = "Загружаю плейлист"
+        answer = "Загружаю плейлист (/stop - щоб остановити)"
         botmessage = bot.send_message(message.chat.id,answer)
         uselessMessagesTable.addMessage(botmessage)
         audios = youtube.getPlaylistInfo(playlist_link[chat],chat,val)
