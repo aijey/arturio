@@ -297,10 +297,6 @@ def handle_callback(call):
     indx = int(call.data[1:])
     type = int(call.data[0])
     chat = transChatId[message.chat.id]
-    answer = 'Ща всьо буде'
-    botmessage = bot.send_message(message.chat.id, answer)
-    uselessMessagesTable.addMessage(botmessage)
-    log(message,answer)
     bot.send_chat_action(message.chat.id,'upload_audio')
     if (type == 1):
         getFile(ls[chat][indx][0],chat)
@@ -309,10 +305,6 @@ def handle_callback(call):
     if (type == 2):
         youtube.download(ytls[chat][indx][0],chat = chat)
         performer,title = youtube.titleParse(ytls[chat][indx][1])
-    answer = 'Скачавім, гружу тепер тобі'
-    botmessage = bot.send_message(message.chat.id, answer)
-    uselessMessagesTable.addMessage(botmessage)
-    log(message,answer)
     # file = open('music/file'+str(chat)+'.mp3')
     bot.send_chat_action(message.chat.id,'upload_audio')
     bot.send_audio(message.chat.id,
