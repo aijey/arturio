@@ -183,7 +183,7 @@ def handle_stop(message):
     global stop,transChatId
     chat = transChatId[message.chat.id]
     init(message)
-    stop[chat] = True:
+    stop[chat] = True
 @bot.message_handler(commands=['help'])
 def handle_help(message):
     global state,transChatId
@@ -389,6 +389,9 @@ def handle_text(message):
             except Exception as er:
                 print(er)
         state[chat] = 0
+        anwer = "Удалити всі ці пісні - /clear"
+        botmessage = bot.send_message(message.chat.id,answer)
+        uselessMessagesTable.addMessage(botmessage)
         return
 
 
