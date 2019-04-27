@@ -389,7 +389,7 @@ def handle_text(message):
             except Exception as er:
                 print(er)
         state[chat] = 0
-        anwer = "Удалити всі ці пісні - /clear"
+        answer = "Удалити всі ці пісні - /clear"
         botmessage = bot.send_message(message.chat.id,answer)
         uselessMessagesTable.addMessage(botmessage)
         return
