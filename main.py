@@ -354,7 +354,7 @@ def handle_similar(message):
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
     global state
-    global ls,transChatId,ytls
+    global ls,transChatId,ytls,stop
     init(message)
     chat = transChatId[message.chat.id]
 
