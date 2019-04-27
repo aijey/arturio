@@ -373,8 +373,8 @@ def handle_text(message):
         uselessMessagesTable.addMessage(botmessage)
         audios = youtube.getPlaylistInfo(playlist_link[chat],chat,val)
         for audio in audios:
-            if (stop[chat] == True):
-                stop[chat] = None
+            if (chat in stop and stop[chat] == True ):
+                stop[chat] = False
                 break
             bot.send_chat_action(message.chat.id,'upload_audio')
             youtube.download(audio[0],chat)
