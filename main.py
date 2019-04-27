@@ -24,6 +24,7 @@ lastNotUsed = 0
 transChatId = {} # Transformed chatId into freeSpaceIndex
 state = []
 playlist_link = {}
+stop = {}
 musicMode = []
 pos = []
 ls = [[]]
@@ -177,7 +178,12 @@ def init(message):
 def log(message, answer):
     print('Reply to ' + message.from_user.first_name + ': ' + answer)
 
-
+@bot.message_handler(commands=['stop'])
+def handle_stop(message):
+    global stop,transChatId
+    chat = transChatId[message.chat.id]
+    init(message)
+    stop[chat] = True:
 @bot.message_handler(commands=['help'])
 def handle_help(message):
     global state,transChatId
@@ -367,6 +373,9 @@ def handle_text(message):
         uselessMessagesTable.addMessage(botmessage)
         audios = youtube.getPlaylistInfo(playlist_link[chat],chat,val)
         for audio in audios:
+            if (stop[chat] == True):
+                stop[chat] = None
+                break
             bot.send_chat_action(message.chat.id,'upload_audio')
             youtube.download(audio[0],chat)
             try:
@@ -468,7 +477,8 @@ bot.polling(none_stop=True, interval=1)
 
 # states
 # 0 -> default
-# 50 -> select Group
+# 50 -> /similar typed
+# 51 -> song name typed
 # 101 -> waiting for password
 # 100 -> logged in as admin
 # 102 -> waiting for schedule
