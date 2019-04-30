@@ -313,8 +313,12 @@ def handle_callback(call):
     title = title
     )
     state[chat] = 0
+    markup = None
+    if (state[chat] == 52):
+        markup = types.ReplyKeyboardRemove()
     answer = 'Пиши /clear , щоб удалити лишні повідомлення'
-    botmessage = bot.send_message(message.chat.id,answer)
+    botmessage = bot.send_message(message.chat.id,answer,
+    reply_markup = markup)
     uselessMessagesTable.addMessage(botmessage)
     print("Music sent: " + performer + " -- " + title)
 @bot.message_handler(commands=['music'])
