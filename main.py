@@ -372,29 +372,40 @@ def handle_text(message):
                     stop[chat] = False
                     break
                 bot.send_chat_action(message.chat.id, 'upload_audio')
-                youtube.download(audio[0],chat)
-                performer, title = youtube.titleParse(audio[1])
-                file = open('music/file' + str(chat) +'.mp3', 'rb')
-                bot.send_audio(message.chat.id,
-                audio = file,
-                performer = performer,
-                title = title
-                )
+                try:
+                    youtube.download(audio[0],chat)
+                    performer, title = youtube.titleParse(audio[1])
+                    file = open('music/file' + str(chat) +'.mp3', 'rb')
+                    botmessage = bot.send_audio(message.chat.id,
+                    audio = file,
+                    performer = performer,
+                    title = title
+                    )
+                    uselessMessagesTable.addMessage(botmessage)
+                except:
+                    answer = "Failed to download " + audio[1]
+                    botmessage = bot.send_message(message.chat.id,answer)
+                    uselessMessagesTable.addMessage(botmessage)
         if (message.text == "PLAY ALL"):
             for audio in ytls[chat]:
                 if (stop[chat] == True):
                     stop[chat] = False
                     break
                 bot.send_chat_action(message.chat.id, 'upload_audio')
-                youtube.download(audio[0],chat)
-                performer, title = youtube.titleParse(audio[1])
-                file = open('music/file' + str(chat) +'.mp3', 'rb')
-                botmessage = bot.send_audio(message.chat.id,
-                audio = file,
-                performer = performer,
-                title = title
-                )
-                uselessMessagesTable.addMessage(botmessage)
+                try:
+                    youtube.download(audio[0],chat)
+                    performer, title = youtube.titleParse(audio[1])
+                    file = open('music/file' + str(chat) +'.mp3', 'rb')
+                    botmessage = bot.send_audio(message.chat.id,
+                    audio = file,
+                    performer = performer,
+                    title = title
+                    )
+                    uselessMessagesTable.addMessage(botmessage)
+                except:
+                    answer = "Failed to download " + audio[1]
+                    botmessage = bot.send_message(message.chat.id,answer)
+                    uselessMessagesTable.addMessage(botmessage)
         state[chat] = 0
         return
     if (state[chat] == 51):
