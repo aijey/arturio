@@ -18,6 +18,7 @@ def calc2(k):
         res+=cnt[i]*((i-seredn)**k)
     res/=40
     return res
+sum = 0
 while (True):
     st = input()
     if (st == "END"):
@@ -27,12 +28,13 @@ while (True):
     b = float(st[1])
     cnt[a] = b
     seredn += a*b
-seredn/=40
+    sum += b
+seredn/=sum
 print(seredn)
 res = 0
 for i in cnt.keys():
     res+=cnt[i]*sqr(i-seredn)
-res/=40
+res/=sum
 print(res)
 print(math.sqrt(res))
 res*=40
@@ -89,3 +91,24 @@ for i in range(1,5):
 # 21 1
 # 22 2
 # END
+
+# prkhvtl
+# -2 2
+# -1 2
+# 0 3
+# 1 2
+# 1.5 1
+# 2 3
+# 3 3
+# 4 1
+# 5 3
+# 7 2
+# 8 2
+# 10 2
+# 11 2
+# 12 3
+# 13 2
+# 17 3
+# 19 2
+# 21 1
+# 22 1
