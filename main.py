@@ -13,8 +13,8 @@ import Search.youtube as youtube
 
 DATABASE_URL = os.environ['DATABASE_URL'] # <- RELEASE
 # DATABASE_URL = "postgres://autltpnfsesakf:2eb9e796e60223c7c286f518f0215f16279c629b419eff77524b6d480d978022@ec2-54-227-245-146.compute-1.amazonaws.com:5432/df8cliiof9jbhi"
-TOKEN = "743596317:AAFGbmXQOXakO_MpFWFkXzltzLB6__eRYOs" # <- RELEASE
-# TOKEN = "816874983:AAF4PVoOWkfI3-CmdJiceL-iW9Ad0VDpMTg"
+TOKEN = "sosi bibu" # <- RELEASE
+# TOKEN = "mnogo znati hochesh"
 PASSWORD = "admin"
 
 schedule_message_id = None
