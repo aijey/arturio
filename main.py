@@ -12,7 +12,7 @@ import Search.youtube as youtube
 
 
 DATABASE_URL = os.environ['DATABASE_URL'] # <- RELEASE
-TOKEN = "816874983:AAF4PVoOWkfI3-CmdJiceL-iW9Ad0VDpMTg"
+TOKEN = "743596317:AAFGbmXQOXakO_MpFWFkXzltzLB6__eRYOs"
 PASSWORD = "admin"
 
 schedule_message_id = None
