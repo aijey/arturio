@@ -3,6 +3,6 @@ gunicorn
 django-heroku
 pyTelegramBotAPI
 psycopg2
-youtube_dl==2019.7.27
+youtube_dl==2019.7.30
 ffmpeg
 ffprobe
