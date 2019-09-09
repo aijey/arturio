@@ -273,10 +273,10 @@ def handle_clear(message):
 @bot.message_handler(commands=['schedule'])
 def handle_schedule(message):
     global state, transChatId
-    init(message)
-    chat = transChatId[message.chat.id]
-    schedule = paramsTable.getSchedule()
     try:
+        init(message)
+        chat = transChatId[message.chat.id]
+        schedule = paramsTable.getSchedule()
         answer = "Розклад:"
         botmessage = bot.send_message(message.chat.id, answer)
         uselessMessagesTable.addMessage(botmessage)
