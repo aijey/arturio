@@ -307,9 +307,11 @@ def handle_callback(call):
             youtube.download(ytls[chat][indx][0],chat = chat)
             performer,title = youtube.titleParse(ytls[chat][indx][1])
         # file = open('music/file'+str(chat)+'.mp3')
+        # file = open('music/file'+str(chat)+'.mp3', "w")
+        # file.close()
         bot.send_chat_action(message.chat.id,'upload_audio')
         bot.send_audio(message.chat.id,
-        audio = open('music/file'+str(chat)+'.mp3', 'rb'),
+        audio = open('file'+str(chat)+'.mp3', 'rb'),
         performer =  performer,
         title = title
         )
