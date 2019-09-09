@@ -311,7 +311,7 @@ def handle_callback(call):
         # file.close()
         bot.send_chat_action(message.chat.id,'upload_audio')
         bot.send_audio(message.chat.id,
-        audio = open('./music/file'+str(chat)+'.mp3', 'rb'),
+        audio = open('Music/file'+str(chat)+'.mp3', 'rb'),
         performer =  performer,
         title = title
         )
@@ -383,7 +383,7 @@ def handle_text(message):
                 try:
                     youtube.download(audio[0],chat)
                     performer, title = youtube.titleParse(audio[1])
-                    file = open('music/file' + str(chat) +'.mp3', 'rb')
+                    file = open('Music/file' + str(chat) +'.mp3', 'rb')
                     botmessage = bot.send_audio(message.chat.id,
                     audio = file,
                     performer = performer,
@@ -403,7 +403,7 @@ def handle_text(message):
                 try:
                     youtube.download(audio[0],chat)
                     performer, title = youtube.titleParse(audio[1])
-                    file = open('music/file' + str(chat) +'.mp3', 'rb')
+                    file = open('Music/file' + str(chat) +'.mp3', 'rb')
                     botmessage = bot.send_audio(message.chat.id,
                     audio = file,
                     performer = performer,
