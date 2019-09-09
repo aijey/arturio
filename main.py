@@ -148,7 +148,7 @@ def getList(song,message):
 
 
 def getFile(link,chat):
-    file_name = 'music/file'+str(chat)+'.mp3'
+    file_name = 'Music/file'+str(chat)+'.mp3'
     url = 'http://music.xn--41a.ws' + link
     print("Downloading: " + url);
     gcontext = ssl.SSLContext()  # Only for gangstars
@@ -311,7 +311,7 @@ def handle_callback(call):
         # file.close()
         bot.send_chat_action(message.chat.id,'upload_audio')
         bot.send_audio(message.chat.id,
-        audio = open('file'+str(chat)+'.mp3', 'rb'),
+        audio = open('./music/file'+str(chat)+'.mp3', 'rb'),
         performer =  performer,
         title = title
         )
