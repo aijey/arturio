@@ -11,8 +11,8 @@ from Data.Data import *
 import Search.youtube as youtube
 
 
-DATABASE_URL = os.environ['DATABASE_URL'] # <- RELEASE
-# DATABASE_URL = "postgres://vlipvnosqtkfxm:5d62143815e1f78a6757d254a38893e2e80a15cab11e69c00e5ede338bc39bf2@ec2-174-129-29-101.compute-1.amazonaws.com:5432/dfrd04dtf0cajn"
+# DATABASE_URL = os.environ['DATABASE_URL'] # <- RELEASE
+DATABASE_URL = "postgres://vlipvnosqtkfxm:5d62143815e1f78a6757d254a38893e2e80a15cab11e69c00e5ede338bc39bf2@ec2-174-129-29-101.compute-1.amazonaws.com:5432/dfrd04dtf0cajn"
 
 TOKEN = "743596317:AAFGbmXQOXakO_MpFWFkXzltzLB6__eRYOs"
 PASSWORD = "admin";
@@ -309,7 +309,7 @@ def handle_callback(call):
         # file = open('music/file'+str(chat)+'.mp3')
         bot.send_chat_action(message.chat.id,'upload_audio')
         bot.send_audio(message.chat.id,
-        audio = open('./music/file'+str(chat)+'.mp3', 'rb'),
+        audio = open('music/file'+str(chat)+'.mp3', 'rb'),
         performer =  performer,
         title = title
         )
