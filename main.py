@@ -12,7 +12,9 @@ import Search.youtube as youtube
 
 
 DATABASE_URL = os.environ['DATABASE_URL'] # <- RELEASE
-TOKEN = "743596317:AAFGbmXQOXakO_MpFWFkXzltzLB6__eRYOs";
+# DATABASE_URL = "postgres://vlipvnosqtkfxm:5d62143815e1f78a6757d254a38893e2e80a15cab11e69c00e5ede338bc39bf2@ec2-174-129-29-101.compute-1.amazonaws.com:5432/dfrd04dtf0cajn"
+
+TOKEN = "743596317:AAFGbmXQOXakO_MpFWFkXzltzLB6__eRYOs"
 PASSWORD = "admin";
 
 schedule_message_id = None
@@ -290,35 +292,40 @@ def handle_schedule(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def handle_callback(call):
-    global ls,transChatId,ytls
-    message = call.message
-    indx = int(call.data[1:])
-    type = int(call.data[0])
-    chat = transChatId[message.chat.id]
-    bot.send_chat_action(message.chat.id,'upload_audio')
-    if (type == 1):
-        getFile(ls[chat][indx][0],chat)
-        performer = ls[chat][indx][1]
-        title = ls[chat][indx][2]
-    if (type == 2):
-        youtube.download(ytls[chat][indx][0],chat = chat)
-        performer,title = youtube.titleParse(ytls[chat][indx][1])
-    # file = open('music/file'+str(chat)+'.mp3')
-    bot.send_chat_action(message.chat.id,'upload_audio')
-    bot.send_audio(message.chat.id,
-    audio = open('music/file'+str(chat)+'.mp3', 'rb'),
-    performer =  performer,
-    title = title
-    )
-    state[chat] = 0
-    markup = None
-    if (state[chat] == 52):
-        markup = types.ReplyKeyboardRemove()
-    answer = 'Пиши /clear , щоб удалити лишні повідомлення'
-    botmessage = bot.send_message(message.chat.id,answer,
-    reply_markup = markup)
-    uselessMessagesTable.addMessage(botmessage)
-    print("Music sent: " + performer + " -- " + title)
+    try:
+        global ls,transChatId,ytls
+        message = call.message
+        indx = int(call.data[1:])
+        type = int(call.data[0])
+        chat = transChatId[message.chat.id]
+        bot.send_chat_action(message.chat.id,'upload_audio')
+        if (type == 1):
+            getFile(ls[chat][indx][0],chat)
+            performer = ls[chat][indx][1]
+            title = ls[chat][indx][2]
+        if (type == 2):
+            youtube.download(ytls[chat][indx][0],chat = chat)
+            performer,title = youtube.titleParse(ytls[chat][indx][1])
+        # file = open('music/file'+str(chat)+'.mp3')
+        bot.send_chat_action(message.chat.id,'upload_audio')
+        bot.send_audio(message.chat.id,
+        audio = open('music/file'+str(chat)+'.mp3', 'rb'),
+        performer =  performer,
+        title = title
+        )
+        state[chat] = 0
+        markup = None
+        if (state[chat] == 52):
+            markup = types.ReplyKeyboardRemove()
+        answer = 'Пиши /clear , щоб удалити лишні повідомлення'
+        botmessage = bot.send_message(message.chat.id,answer,
+        reply_markup = markup)
+        uselessMessagesTable.addMessage(botmessage)
+        print("Music sent: " + performer + " -- " + title)
+    except Exception as error:
+        botmessage = bot.send_message(message.chat.id, "Error while processing your request")
+        log(message, "Error while processing your request")
+        uselessMessagesTable.addMessage(botmessage)
 @bot.message_handler(commands=['music'])
 def handle_music(message):
     global state,transChatId
@@ -485,7 +492,6 @@ def handle_text(message):
         song_name = song_name.replace(' ','-')
         ls[chat] = getList(song_name, message)
         ytls[chat] = youtube.search(song_name)
-        print(len(ytls[chat]))
         if len(ls[chat])>0 or len(ytls[chat])>0:
             answer = "Туй, але. (Після некст запроса буде недост)"
             id = 0
@@ -510,8 +516,11 @@ def handle_text(message):
             id = 0
             markup = types.InlineKeyboardMarkup()
             for i in ytls[chat]:
+                title = i[1]
+                if (title == ''):
+                    title = i[0]
                 button = types.InlineKeyboardButton(
-                text = i[1],
+                text = title,
                 callback_data = '2'+str(id)
                 )
                 markup.add(button)
@@ -522,7 +531,6 @@ def handle_text(message):
             uselessMessagesTable.addMessage(botmessage)
             log(message,answer)
         else:
-            print('da')
             answer = 'Сорямба, я нич не найшов'
             botmessage = bot.send_message(message.chat.id, answer)
             uselessMessagesTable.addMessage(botmessage)

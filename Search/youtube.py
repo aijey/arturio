@@ -4,6 +4,7 @@ import requests
 import youtube_dl
 import ssl
 import json
+from math import *
 gcontext = ssl.SSLContext()  # Only for gangstars
 ssl._create_default_https_context = ssl._create_unverified_context
 def search(query):
@@ -15,10 +16,12 @@ def search(query):
     link = "https://youtube.com/results?search_query="+query
 
     html = requests.get(link,headers = headers)
-    file = open('output.html',"w")
+    print("RESULTING ENCODING: " + str(html.encoding))
+    file = open('Search/output.html',"w")
     file.write(html.content.decode())
-
+    file.close()
     htmlContent = html.content.decode()
+
     pos = 0
     results = []
     while True:
@@ -41,13 +44,20 @@ def search(query):
             print("BAD LINK")
             continue
         link = "https://youtube.com" + link
-        pos = htmlContent.find(">",pos)
-        pos+=1
-        pos = htmlContent.find(">",pos)
-        pos+=1
-        while (htmlContent[pos]!='<'):
-            title+=htmlContent[pos]
-            pos+=1
+        pos = htmlContent.find("title=",pos)
+        pos+=6
+        to = htmlContent.find(" rel=\"spf-prefetch\"", pos)
+        to2 = htmlContent.find(" aria-describedby", pos)
+        to = min(to, to2)
+        title = htmlContent[pos+1:to-1]
+        print(title)
+        # pos = htmlContent.find(">",pos)
+        # pos+=1
+        # pos = htmlContent.find(">",pos)
+        # pos+=1
+        # while (htmlContent[pos]!='<'):
+        #     title+=htmlContent[pos]
+        #     pos+=1
         results.append([link,title])
         if (pos == -1):
             break
