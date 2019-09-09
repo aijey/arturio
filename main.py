@@ -323,6 +323,7 @@ def handle_callback(call):
         uselessMessagesTable.addMessage(botmessage)
         print("Music sent: " + performer + " -- " + title)
     except Exception as error:
+        print(error)
         botmessage = bot.send_message(message.chat.id, "Error while processing your request")
         log(message, "Error while processing your request")
         uselessMessagesTable.addMessage(botmessage)
