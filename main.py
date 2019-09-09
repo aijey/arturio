@@ -309,7 +309,7 @@ def handle_callback(call):
         # file = open('music/file'+str(chat)+'.mp3')
         bot.send_chat_action(message.chat.id,'upload_audio')
         bot.send_audio(message.chat.id,
-        audio = open('music/file'+str(chat)+'.mp3', 'rb'),
+        audio = open('./music/file'+str(chat)+'.mp3', 'rb'),
         performer =  performer,
         title = title
         )
