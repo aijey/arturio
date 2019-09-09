@@ -309,7 +309,7 @@ def handle_callback(call):
         # file = open('music/file'+str(chat)+'.mp3')
         bot.send_chat_action(message.chat.id,'upload_audio')
         bot.send_audio(message.chat.id,
-        audio = open('music/file'+str(chat)+'.mp3', 'rb'),
+        audio = open('Music/file'+str(chat)+'.mp3', 'rb'),
         performer =  performer,
         title = title
         )
@@ -323,7 +323,7 @@ def handle_callback(call):
         uselessMessagesTable.addMessage(botmessage)
         print("Music sent: " + performer + " -- " + title)
     except Exception as error:
-        print(error)
+        print(str(error))
         botmessage = bot.send_message(message.chat.id, "Error while processing your request")
         log(message, "Error while processing your request")
         uselessMessagesTable.addMessage(botmessage)
