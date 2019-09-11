@@ -74,7 +74,7 @@ def download(link,chat=""):
         }],
         'workaround': 'no-check-certificate',
         'audioformat': 'mp3',
-        'outtmpl': './music/file' + str(chat) +'.%(ext)s'
+        'outtmpl': './Music/file' + str(chat) +'.%(ext)s'
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([link])
@@ -92,7 +92,7 @@ def downloadPlaylist(playlist_link,chat,playlistend=10):
         'workaround': 'no-check-certificate',
         'audioformat': 'mp3',
         'playlistend' : playlistend,
-        'outtmpl': './music/playlist/' + str(chat) + '?%(playlist_index)s.%(ext)s'
+        'outtmpl': './Music/playlist/' + str(chat) + '?%(playlist_index)s.%(ext)s'
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([playlist_link])
@@ -147,7 +147,7 @@ def getPlaylistInfo(playlist_link,chat="",playlistend=10):
         'workaround': 'no-check-certificate',
         'audioformat': 'mp3',
         'playlistend' : playlistend,
-        'outtmpl': './music/playlist/' + str(chat) + '?%(playlist_index)s.%(ext)s'
+        'outtmpl': './Music/playlist/' + str(chat) + '?%(playlist_index)s.%(ext)s'
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(playlist_link, download = False)
