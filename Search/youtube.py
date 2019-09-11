@@ -5,6 +5,7 @@ import youtube_dl
 import ssl
 import json
 from math import *
+import html.parser
 gcontext = ssl.SSLContext()  # Only for gangstars
 ssl._create_default_https_context = ssl._create_unverified_context
 def search(query):
@@ -15,12 +16,14 @@ def search(query):
 
     link = "https://youtube.com/results?search_query="+query
 
-    html = requests.get(link,headers = headers)
-    print("RESULTING ENCODING: " + str(html.encoding))
+    htmlPage = requests.get(link,headers = headers)
+    print("RESULTING ENCODING: " + str(htmlPage.encoding))
     file = open('Search/output.html',"w")
-    file.write(html.content.decode())
+    htmlContent = htmlPage.content.decode()
+    htmlContent = html.parser.HTMLParser().unescape(htmlContent)
+
+    file.write(htmlContent)
     file.close()
-    htmlContent = html.content.decode()
 
     pos = 0
     results = []
@@ -99,18 +102,15 @@ def downloadPlaylist(playlist_link,chat,playlistend=10):
 
 def titleParse(title):
     pos = title.find('-')
-    pos2 = title.find('-',pos)
-    if (pos2-pos > 1):
-        return title,title
-    if (pos2 == -1):
-        pos2 = pos
-    performer = title[:(pos-1)]
-    title = title[(pos2+1):]
-    if (performer == ""):
+    if (pos == -1):
         return title, title
-    if (title == ""):
-        return performer, performer
-    return performer, title
+    pos2 = title.find('-', pos + 1)
+    if (pos2 == -1):
+        performer = title[:(pos - 1)]
+        title = title[(pos + 1):]
+        return performer, title
+    else:
+        return title, title
 
 def getPlaylist(query):
     res = search(query)
