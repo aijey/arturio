@@ -10,8 +10,8 @@ gcontext = ssl.SSLContext()  # Only for gangstars
 ssl._create_default_https_context = ssl._create_unverified_context
 def search(query):
     headers = {
-    'User-Agent': 'My User Agent 1.0',
-    'From': 'youremail@domain.com'  # This is another valid field
+    # 'User-Agent': 'My User777Agent 1.0',
+    # 'From': 'youremai654567l@domain.com'  # This is another valid field
     }
 
     link = "https://youtube.com/results?search_query="+query
@@ -147,12 +147,13 @@ def getPlaylistInfo(playlist_link,chat="",playlistend=10):
         'workaround': 'no-check-certificate',
         'audioformat': 'mp3',
         'playlistend' : playlistend,
-        'outtmpl': './Music/playlist/' + str(chat) + '?%(playlist_index)s.%(ext)s'
+        'outtmpl': './Music/playlist/' + str(chat) + '?%(playlist_index)s.%(ext)s',
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(playlist_link, download = False)
         file = open("output.txt", mode = "w")
         file.write(json.dumps(info))
+        file.close()
         res = []
         for item in info['entries']:
             video = ["https://www.youtube.com/watch?v=" + item['id'], item['title']]
