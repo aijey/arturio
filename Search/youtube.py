@@ -104,7 +104,13 @@ def titleParse(title):
         return title,title
     if (pos2 == -1):
         pos2 = pos
-    return title[:(pos-1)],title[(pos2+1):]
+    performer = title[:(pos-1)]
+    title = title[(pos2+1):]
+    if (performer == ""):
+        return title, title
+    if (title == ""):
+        return performer, performer
+    return performer, title
 
 def getPlaylist(query):
     res = search(query)
