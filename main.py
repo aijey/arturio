@@ -190,9 +190,10 @@ def handle_help(message):
     global state,transChatId
     init(message)
     state[transChatId[message.chat.id]] = 0
-    answer = "Поки я вмію шукати музику. Пишеш /music, щоб ввімкнути режим музики, потім назву пісні або автора. Отримуєш список з 11 пісень (або менше) і" \
-             " вибераєш ту, яка тобі підходить. Потім чекаєш в середньому секунд 20 і отримуєш свій трек 😎😎😎. Після цього можеш знову написати /music і " \
-             " вимкнути режим пошуку музики, або написати назву іншої пісні, якщо плануєш знайте ще одну."
+    answer = "Поки я вмію шукати музику. Пишеш /music, щоб ввімкнути режим музики, потім назву пісні або автора. Отримуєш список пісень і" \
+             " вибераєш ту, яка тобі підходить. Потім чекаєш трохи й отримуєш свій трек 😎😎😎. Після цього можеш знову написати /music і " \
+             " вимкнути режим пошуку музики, або написати назву іншої пісні, якщо плануєш знайте ще одну. Також можна знаходити схожі пісні" \
+             " за допомогою /similar. Можна також завантажувати відео за допомогою /video"
     botmessage = bot.send_message(message.chat.id, answer)
     uselessMessagesTable.addMessage(botmessage)
 
@@ -296,7 +297,10 @@ def handle_callback(call):
         indx = int(call.data[1:])
         type = int(call.data[0])
         chat = transChatId[message.chat.id]
-        bot.send_chat_action(message.chat.id,'upload_audio')
+        if (type <= 2):
+            bot.send_chat_action(message.chat.id,'upload_audio')
+        else:
+            bot.send_chat_action(message.chat.id,'upload_video')
         if (type == 1):
             getFile(ls[chat][indx][0],chat)
             performer = ls[chat][indx][1]
@@ -304,24 +308,35 @@ def handle_callback(call):
         if (type == 2):
             youtube.download(ytls[chat][indx][0],chat = chat)
             performer,title = youtube.titleParse(ytls[chat][indx][1])
+        if (type == 3):
+            youtube.download(ytls[chat][indx][0],videoonly = True, chat = chat)
         # file = open('music/file'+str(chat)+'.mp3')
         # file = open('music/file'+str(chat)+'.mp3', "w")
         # file.close()
-        bot.send_chat_action(message.chat.id,'upload_audio')
-        bot.send_audio(message.chat.id,
-        audio = open('Music/file'+str(chat)+'.mp3', 'rb'),
-        performer =  performer,
-        title = title
-        )
-        state[chat] = 0
-        markup = None
-        if (state[chat] == 52):
-            markup = types.ReplyKeyboardRemove()
-        answer = 'Пиши /clear , щоб удалити лишні повідомлення'
-        botmessage = bot.send_message(message.chat.id,answer,
-        reply_markup = markup)
-        uselessMessagesTable.addMessage(botmessage)
-        print("Music sent: " + performer + " -- " + title)
+        if (type <= 2):
+            bot.send_chat_action(message.chat.id,'upload_audio')
+            bot.send_audio(message.chat.id,
+            audio = open('Music/file'+str(chat)+'.mp3', 'rb'),
+            performer =  performer,
+            title = title
+            )
+            state[chat] = 0
+            markup = None
+            if (state[chat] == 52):
+                markup = types.ReplyKeyboardRemove()
+            answer = 'Пиши /clear , щоб удалити лишні повідомлення'
+            botmessage = bot.send_message(message.chat.id,answer,
+            reply_markup = markup)
+            uselessMessagesTable.addMessage(botmessage)
+            print("Music sent: " + performer + " -- " + title)
+        else:
+            bot.send_chat_action(message.chat.id, 'upload_video')
+            bot.send_video(message.chat.id, open('Video/file' + str(chat) + '.mp4', 'rb'))
+            state[chat] = 0
+            answer = 'Пиши /clear , щоб удалити лишні повідомлення'
+            botmessage = bot.send_message(message.chat.id,answer)
+            uselessMessagesTable.addMessage(botmessage)
+            print('Video sent!')
     except Exception as error:
         print(str(error))
         botmessage = bot.send_message(message.chat.id, "Error while processing your request")
@@ -356,12 +371,58 @@ def handle_similar(message):
         uselessMessagesTable.addMessage(botmessage)
         state[chat] = 50
 
+@bot.message_handler(commands = ['video'])
+def handle_video(message):
+    global state, transChatId
+    init(message)
+    chat = transChatId[message.chat.id]
+    if (state[chat] < 100):
+        answer = "Введи назву відоса"
+        botmessage = bot.send_message(message.chat.id, answer)
+        uselessMessagesTable.addMessage(botmessage)
+        state[chat] = 60
+        log(message, answer)
+
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
     global state
     global ls,transChatId,ytls,stop
     init(message)
     chat = transChatId[message.chat.id]
+
+    if (state[chat] == 60):
+        video_name = message.text
+        ytls[chat] = youtube.search(video_name)
+        if (len(ytls[chat]) == 0):
+            answer = "Ничім не найшов"
+            botmessage = bot.send_message(message.chat.id, answer)
+            uselessMessagesTable.addMessage(botmessage)
+            log(message, answer)
+            state[chat] = 0
+            return
+        else:
+            answer = "Туй але:"
+            id = 0
+            markup = types.InlineKeyboardMarkup()
+            for i in ytls[chat]:
+                title = i[1]
+                if (title == ''):
+                    title = i[0]
+                button = types.InlineKeyboardButton(
+                text = title,
+                callback_data = '3'+str(id)
+                )
+                markup.add(button)
+                id+=1
+                if (id > 10):
+                    break
+            botmessage = bot.send_message(message.chat.id,answer,reply_markup = markup)
+            uselessMessagesTable.addMessage(botmessage)
+            log(message,answer)
+            state[chat] = 0
+            return
+
+
 
     if (state[chat] == 52):
         markup = types.ReplyKeyboardRemove()
@@ -543,6 +604,8 @@ bot.polling(none_stop=True, interval=1)
 # 0 -> default
 # 50 -> /similar typed
 # 51 -> song name typed
+# 60 -> /video typed
+# 61 -> video name typed
 # 101 -> waiting for password
 # 100 -> logged in as admin
 # 102 -> waiting for schedule

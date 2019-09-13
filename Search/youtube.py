@@ -4,6 +4,7 @@ import requests
 import youtube_dl
 import ssl
 import json
+import os
 from math import *
 import html.parser
 gcontext = ssl.SSLContext()  # Only for gangstars
@@ -65,20 +66,30 @@ def search(query):
         if (pos == -1):
             break
     return results
-def download(link,chat=""):
+def download(link, videoonly = False, chat=""):
     print(link)
-    ydl_opts = {
-        'nocheckcertificate': True,
-        'format': 'bestaudio/best',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-        'workaround': 'no-check-certificate',
-        'audioformat': 'mp3',
-        'outtmpl': './Music/file' + str(chat) +'.%(ext)s'
-    }
+    ydl_opts = {}
+    if (videoonly == False):
+        ydl_opts = {
+            'nocheckcertificate': True,
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+            'workaround': 'no-check-certificate',
+            'audioformat': 'mp3',
+            'outtmpl': './Video/file' + str(chat) +'.%(ext)s'
+        }
+    else:
+        os.system('rm Video/file' + str(chat) +'.mp4')
+        ydl_opts = {
+            'format': '(mp4)',
+            'nocheckcertificate': True,
+            'outtmpl': './Video/file' + str(chat) +'.%(ext)s',
+            'nooverwrites': False
+        }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([link])
 
