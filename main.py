@@ -609,3 +609,10 @@ bot.polling(none_stop=True, interval=1)
 # 101 -> waiting for password
 # 100 -> logged in as admin
 # 102 -> waiting for schedule
+
+# help - Кіть не знаєш як ся пользувати
+# music - Уключити режим поіска музики
+# video - Найти файний відос
+# similar - Скачувати подрят похожі пісні
+# schedule - Пак скину ти розклад
+# clear - Удалити усьо лишньоє
