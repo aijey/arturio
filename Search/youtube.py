@@ -80,7 +80,7 @@ def download(link, videoonly = False, chat=""):
             }],
             'workaround': 'no-check-certificate',
             'audioformat': 'mp3',
-            'outtmpl': './Video/file' + str(chat) +'.%(ext)s'
+            'outtmpl': './Music/file' + str(chat) +'.%(ext)s'
         }
     else:
         os.system('rm Video/file' + str(chat) +'.mp4')
