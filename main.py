@@ -13,7 +13,7 @@ import Search.youtube as youtube
 
 DATABASE_URL = os.environ['DATABASE_URL'] # <- RELEASE
 TOKEN = os.environ['TOKEN']
-PASSWORD = os.environ['ADMIN_PASSWORD'];
+PASSWORD = os.environ['ADMIN_PASSWORD']
 
 schedule_message_id = None
 
@@ -122,7 +122,7 @@ def getList(song,message):
     'User-Agent': 'My User Agent 1.0',
     'From': 'youremail@domain.com'  # This is another valid field
     }
-    url = "http://music.xn--41a.ws/search/"+(song)+"/"
+    url = "http://rmusic.xn--41a.wiki/search/"+(song)+"/"
     url = url.lower()
     print(url)
     htmlContent = requests.get(url, headers=headers)
@@ -147,7 +147,7 @@ def getList(song,message):
 
 def getFile(link,chat):
     file_name = 'Music/file'+str(chat)+'.mp3'
-    url = 'http://music.xn--41a.ws' + link
+    url = 'https://rmusic.xn--41a.wiki/' + link
     print("Downloading: " + url);
     gcontext = ssl.SSLContext()  # Only for gangstars
     ssl._create_default_https_context = ssl._create_unverified_context
