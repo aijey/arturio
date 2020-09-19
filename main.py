@@ -107,12 +107,14 @@ def getSongName(s,chat):
         else :
             j = 0
         if (j==len(search)):
-            p2 = pos[chat] - j;\
+            p2 = pos[chat] - j;
             p1 = p2
             while (s[p1]!='>'):
                 p1 = p1 - 1
+            p2 = p2 + 1
+            p1 = p1 + 1
             pos[chat] = p2
-            print('Title found: '+ s[p1:p2])
+#             print('Title found: '+ s[p1:p2])
             return s[p1:p2]
     return '0'
 def getList(song,message):
