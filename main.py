@@ -51,7 +51,6 @@ def getLink(s,chat):
             while (s[p2]!='"'):
                 p2 = p2 + 1
             p1 = p1 + 1
-            p2 = p2 - 1
             print('Link found: '+ s[p1:p2])
             return s[p1:p2]
     print('No link')
