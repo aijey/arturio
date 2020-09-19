@@ -99,7 +99,7 @@ def getArtist(s,chat):
 
 def getSongName(s,chat):
     global pos
-    search = '<em>'
+    search = '</a></em>'
     j = 0
     for pos[chat] in range(pos[chat], len(s)):
         if (search[j] == s[pos[chat]]):
@@ -107,12 +107,12 @@ def getSongName(s,chat):
         else :
             j = 0
         if (j==len(search)):
-            p1 = pos[chat] + 1
-            p2 = p1
-            while (s[p2]!='<'):
-                p2 = p2 + 1
+            p2 = pos[chat] - j;\
+            p1 = p2
+            while (s[p1]!='>'):
+                p1 = p1 - 1
             pos[chat] = p2
-            #print('Title found: '+ s[p1:p2])
+            print('Title found: '+ s[p1:p2])
             return s[p1:p2]
     return '0'
 def getList(song,message):
